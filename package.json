@@ -4,7 +4,8 @@
   "description": "rblg",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "lsc src/index.ls"
   },
   "repository": {
     "type": "git",
@@ -15,5 +16,11 @@
   "bugs": {
     "url": "https://github.com/jgsme/rblg/issues"
   },
-  "homepage": "https://github.com/jgsme/rblg#readme"
+  "homepage": "https://github.com/jgsme/rblg#readme",
+  "dependencies": {
+    "good": "^6.4.0",
+    "good-console": "^5.1.0",
+    "hapi": "^11.0.2",
+    "livescript": "^1.4.0"
+  }
 }
