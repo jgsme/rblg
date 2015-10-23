@@ -1,0 +1,19 @@
+{
+  "name": "rblg",
+  "version": "0.0.0",
+  "description": "rblg",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jgsme/rblg.git"
+  },
+  "author": "jigsaw (http://jgs.me)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jgsme/rblg/issues"
+  },
+  "homepage": "https://github.com/jgsme/rblg#readme"
+}
