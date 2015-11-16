@@ -1,6 +1,7 @@
 require! {
   \isomorphic-fetch : fetch
   \lodash.assign : assign
+  \neo-async : async
 }
 
 action-types =
@@ -139,10 +140,8 @@ exports.add-posts = add-posts = (posts)->
   type: actions.ADD_POSTS
   posts: posts
 
-exports.load-posts = load-posts = -> (dispatch, get-state)->
+exports.load-posts = load-posts = (opt, callback, dispatch, get-state)-->
   {user} = get-state!
-  opt =
-    limit: 20
   fetch "/api/dashboard?uid=#{user.uid}&token=#{user.token}&opt=#{JSON.stringify opt}"
     .then (res)-> res.json!
     .then (json)->
@@ -171,6 +170,17 @@ exports.load-posts = load-posts = -> (dispatch, get-state)->
                     url: post.url
               | otherwise => null
             .filter (isnt null)
+        callback!
+
+exports.init-posts = init-posts = -> (dispatch, get-state)->
+  async.each-series do
+    [0 til 10]
+    (n, callback)->
+      console.log n, callback
+      dispatch load-posts do
+          offset: n * 20
+          callback
+    (err)-> if err? then console.log err
 
 exports.update-current-session = update-current-session = (rows, current-index)->
   type: actions.UPDATE_CURRENT_SESSION
@@ -180,7 +190,7 @@ exports.update-current-session = update-current-session = (rows, current-index)-
 exports.check-current-session = check-current-session = -> (dispatch, get-state)->
   {current-session} = get-state!
 
-  if current-session.posts.length is 0 then dispatch load-posts!
+  if current-session.posts.length is 0 then dispatch init-posts!
 
 exports.start-session = start-session = (current-index, dispatch, get-state)-->
   {dbs} = get-state!
