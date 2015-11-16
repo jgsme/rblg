@@ -1,10 +1,9 @@
 require! {
   react: {Component, DOM}
-  \react-dom : {findDOMNode}
 }
 
 class UserConfigPane extends Component
-  on-change: (key, event)~~> @props.update-config key, event.target.value
+  on-change: (key, event)~~> @props.update-config-tumblr key, event.target.value
 
   render: ->
     DOM.div do
@@ -17,10 +16,10 @@ class UserConfigPane extends Component
             htmlFor: \tumblr-consumer-key
             'Tumblr consumer key:'
           DOM.input do
-            type: \text
+            type: \password
             id: \tumblr-consumer-key
-            value: @props.config.tumblr_consumer_key
-            on-change: @on-change \tumblr_consumer_key
+            value: @props.config-tumblr.consumer_key
+            on-change: @on-change \consumer_key
         DOM.li do
           key: \tumblr-consumer-secret
           DOM.label do
@@ -29,18 +28,18 @@ class UserConfigPane extends Component
           DOM.input do
             type: \password
             id: \tumblr-consumer-secret
-            value: @props.config.tumblr_consumer_secret
-            on-change: @on-change \tumblr_consumer_secret
+            value: @props.config-tumblr.consumer_secret
+            on-change: @on-change \consumer_secret
         DOM.li do
           key: \tumblr-token
           DOM.label do
             htmlFor: \tumblr-token
             'Tumblr token:'
           DOM.input do
-            type: \text
+            type: \password
             id: \tumblr-token
-            value: @props.config.tumblr_token
-            on-change: @on-change \tumblr_token
+            value: @props.config-tumblr.token
+            on-change: @on-change \token
         DOM.li do
           key: \tumblr-token-secret
           DOM.label do
@@ -49,10 +48,10 @@ class UserConfigPane extends Component
           DOM.input do
             type: \password
             id: \tumblr-token-secret
-            value: @props.config.tumblr_token_secret
-            on-change: @on-change \tumblr_token_secret
+            value: @props.config-tumblr.token_secret
+            on-change: @on-change \token_secret
       DOM.button do
-        on-click: @props.save-config
+        on-click: @props.save-config-tumblr
         \save
 
 module.exports = UserConfigPane

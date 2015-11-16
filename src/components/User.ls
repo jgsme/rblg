@@ -1,26 +1,24 @@
 require! {
   react: {Component, DOM, create-element}
-  \./UserAuthButton.ls
-  \./UserConfigPane.ls
+  \./user/AuthButton.ls
+  \./user/ConfigPane.ls
 }
 
 class User extends Component
-  component-will-mount: -> @props.check-auth!
-
   render: ->
     DOM.div do
       className: \user-container
       create-element do
-        UserAuthButton
+        AuthButton
         user: @props.user
         auth: @props.auth
         unauth: @props.unauth
       create-element do
-        UserConfigPane
+        ConfigPane
         key: \user-config
         user: @props.user
-        config: @props.config
-        update-config: @props.update-config
-        save-config: @props.save-config
+        config-tumblr: @props.config-tumblr
+        update-config-tumblr: @props.update-config-tumblr
+        save-config-tumblr: @props.save-config-tumblr
 
 module.exports = User

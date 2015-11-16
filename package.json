@@ -10,11 +10,10 @@
   "scripts": {
     "before": "mkdir -p $npm_package_config_DEST",
     "build": "npm-run-all before -p build:* -s postbuild:*",
-    "build:bundle": "browserify -t [ @jigsaw/anyify --ls [ livescript?compile ] ] src/index.ls > $npm_package_config_DEST/index.js && lsc scripts/replaceFirebaseURL.ls",
-    "build:jade": "jade src/*.jade --out $npm_package_config_DEST",
+    "build:bundle": "browserify -t [ @jigsaw/anyify --ls [ livescript?compile ] ] src/index.ls > $npm_package_config_DEST/index.js",
     "clean": "rm -rf $npm_package_config_DEST",
     "uglify": "uglifyjs --compress --mangle -- $npm_package_config_DEST/index.js > $npm_package_config_DEST/index.min.js && cat $npm_package_config_DEST/index.min.js > $npm_package_config_DEST/index.js && rm -f $npm_package_config_DEST/index.min.js",
-    "serve": "static -p $npm_package_config_PORT $npm_package_config_DEST"
+    "start": "lsc src/server.ls"
   },
   "repository": {
     "type": "git",
@@ -26,21 +25,31 @@
     "url": "https://github.com/jgsme/rblg/issues"
   },
   "homepage": "https://github.com/jgsme/rblg#readme",
-  "devDependencies": {
+  "dependencies": {
     "@jigsaw/anyify": "^1.0.1",
     "browserify": "^12.0.1",
     "firebase": "^2.3.1",
+    "good": "^6.4.0",
+    "good-console": "^5.2.0",
+    "hapi": "^11.1.0",
+    "inert": "^3.2.0",
     "isomorphic-fetch": "^2.2.0",
     "jade": "^1.11.0",
+    "jwt-simple": "^0.3.1",
     "livescript": "^1.4.0",
     "lodash.assign": "^3.2.0",
-    "node-static": "^0.7.7",
     "npm-run-all": "^1.2.12",
+    "pouchdb": "^5.1.0",
     "react": "^0.14.2",
     "react-dom": "^0.14.2",
+    "react-notification-system": "^0.2.5",
     "react-redux": "^4.0.0",
     "redux": "^3.0.4",
     "redux-thunk": "^1.0.0",
-    "uglify-js": "^2.5.0"
+    "request": "^2.65.0",
+    "sanitize-html": "^1.11.1",
+    "tumblr.js": "0.0.7",
+    "uglify-js": "^2.5.0",
+    "vision": "^4.0.1"
   }
 }
