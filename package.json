@@ -9,11 +9,12 @@
   },
   "scripts": {
     "before": "mkdir -p $npm_package_config_DEST",
-    "build": "npm-run-all before -p build:* -s postbuild:*",
-    "build:bundle": "browserify -t [ @jigsaw/anyify --ls [ livescript?compile ] ] src/index.ls > $npm_package_config_DEST/index.js",
+    "build": "browserify -t [ @jigsaw/anyify --ls [ livescript?compile ] ] src/index.ls > $npm_package_config_DEST/index.js",
+    "build:dev": "browserify -p browserify-notify -t [ @jigsaw/anyify --ls [ livescript?compile ] ] src/index.ls > $npm_package_config_DEST/index.js",
     "clean": "rm -rf $npm_package_config_DEST",
     "uglify": "uglifyjs --compress --mangle -- $npm_package_config_DEST/index.js > $npm_package_config_DEST/index.min.js && cat $npm_package_config_DEST/index.min.js > $npm_package_config_DEST/index.js && rm -f $npm_package_config_DEST/index.min.js",
-    "start": "lsc src/server.ls"
+    "start": "lsc src/server.ls",
+    "watch": "chokidar '+(src/components/**/*.ls|src/actions.ls|src/index.ls|src/reducers.ls)' -c 'npm run build:dev'"
   },
   "repository": {
     "type": "git",
@@ -51,5 +52,9 @@
     "tumblr.js": "0.0.7",
     "uglify-js": "^2.5.0",
     "vision": "^4.0.1"
+  },
+  "devDependencies": {
+    "browserify-notify": "^1.1.2",
+    "chokidar-cli": "^1.2.0"
   }
 }
