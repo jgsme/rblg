@@ -17,7 +17,7 @@ firebase =
 
 server = new Hapi.Server!
   ..connection do
-      port: process.env.PORT or 3000
+      port: process.env.npm_package_config_PORT or 3000
   ..register do
       [
         * register: Good
