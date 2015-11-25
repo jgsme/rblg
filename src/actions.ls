@@ -94,6 +94,8 @@ exports.check-auth = -> (dispatch, get-state)->
     dispatch set-user user
     dispatch update-refs firebase, user, value-handler dispatch
     dispatch fire-notification \login-success
+  else
+    dispatch set-route \config
 
 exports.auth = -> (dispatch, get-state)->
   {firebase} = get-state!
@@ -103,6 +105,7 @@ exports.auth = -> (dispatch, get-state)->
   dispatch set-user user
   dispatch update-refs firebase, user, value-handler dispatch
   dispatch fire-notification \login-success
+  dispatch set-route \sessions
 
 exports.unauth = -> (dispatch, get-state)->
   get-state!.firebase.unauth!
@@ -140,20 +143,24 @@ exports.add-posts = add-posts = (posts)->
   type: actions.ADD_POSTS
   posts: posts
 
+exports.save-posts = save-posts = -> (dispatch, get-state)->
+  {dbs} = get-state!
+  {current-session} = dbs
+
 exports.load-posts = load-posts = (opt, callback, dispatch, get-state)-->
-  {user} = get-state!
+  {user, current-session} = get-state!
   fetch "/api/dashboard?uid=#{user.uid}&token=#{user.token}&opt=#{JSON.stringify opt}"
     .then (res)-> res.json!
     .then (json)->
       if json.status is \ok
-        dispatch add-posts do
+        posts-candidate =
           json.data.posts
             .map (post)->
               switch post.type
               | \text, \photo, \quote, \link =>
                 assign do
                   type: post.type
-                  id: post.id
+                  _id: "post-#{post.id}"
                   reblog_key: post.reblog_key
                   switch post.type
                   | \text =>
@@ -170,13 +177,18 @@ exports.load-posts = load-posts = (opt, callback, dispatch, get-state)-->
                     url: post.url
               | otherwise => null
             .filter (isnt null)
+            |> (posts)->
+              posts.filter (post)->
+                current-session.posts.reduce do
+                  (p, c)-> if c._id is post._id then false else true
+                  true
+        dispatch add-posts posts-candidate
         callback!
 
 exports.init-posts = init-posts = -> (dispatch, get-state)->
   async.each-series do
     [0 til 10]
     (n, callback)->
-      console.log n, callback
       dispatch load-posts do
           offset: n * 20
           callback
