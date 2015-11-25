@@ -8,6 +8,8 @@ class UserConfigPane extends Component
   render: ->
     DOM.div do
       className: \user-config-container
+      style:
+        display: if @props.user is null then \none else \block
       DOM.ul do
         className: \user-config-list
         DOM.li do
