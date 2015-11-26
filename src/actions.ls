@@ -143,9 +143,12 @@ exports.add-posts = add-posts = (posts)->
   type: actions.ADD_POSTS
   posts: posts
 
-exports.save-posts = save-posts = -> (dispatch, get-state)->
+exports.save-posts = save-posts = (posts, dispatch, get-state)-->
   {dbs} = get-state!
   {current-session} = dbs
+  current-session
+    .bulk-docs posts
+    .catch (err)-> console.log err
 
 exports.load-posts = load-posts = (opt, callback, dispatch, get-state)-->
   {user, current-session} = get-state!
@@ -183,6 +186,7 @@ exports.load-posts = load-posts = (opt, callback, dispatch, get-state)-->
                   (p, c)-> if c._id is post._id then false else true
                   true
         dispatch add-posts posts-candidate
+        dispatch save-posts posts-candidate
         callback!
 
 exports.init-posts = init-posts = -> (dispatch, get-state)->
@@ -201,7 +205,6 @@ exports.update-current-session = update-current-session = (rows, current-index)-
 
 exports.check-current-session = check-current-session = -> (dispatch, get-state)->
   {current-session} = get-state!
-
   if current-session.posts.length is 0 then dispatch init-posts!
 
 exports.start-session = start-session = (current-index, dispatch, get-state)-->
@@ -212,7 +215,8 @@ exports.start-session = start-session = (current-index, dispatch, get-state)-->
       (doc, emit)-> if doc._id.0 isnt \$ then emit doc
       include_docs: true
     .then (res)->
-      dispatch update-current-session res.rows, current-index
+      rows = res.rows.map (.doc)
+      dispatch update-current-session rows, current-index
       dispatch check-current-session!
 
 exports.attach-session = (key, dispatch, get-state)-->
@@ -230,8 +234,25 @@ exports.attach-session = (key, dispatch, get-state)-->
           num: 0
       dispatch start-session 0
 
-exports.next-post = ->
-  type: actions.NEXT_POST
+save-index = (num, db)->
+  db
+    .get \$current-index
+    .then (doc)->
+      db
+        .put do
+          _id: \$current-index
+          _rev: doc._rev
+          num: num
+    .catch (err)-> console.log err
 
-exports.prev-post = ->
-  type: actions.PREV_POST
+exports.next-post = -> (dispatch, get-state)->
+  dispatch do
+    type: actions.NEXT_POST
+  {dbs, current-session} = get-state!
+  save-index current-session.current-index, dbs.current-session
+
+exports.prev-post = -> (dispatch, get-state)->
+  dispatch do
+    type: actions.PREV_POST
+  {dbs, current-session} = get-state!
+  save-index current-session.current-index, dbs.current-session

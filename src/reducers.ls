@@ -61,12 +61,18 @@ module.exports =
       | otherwise => state
     dbs: (state = null, action)->
       | action.type is actions.INIT =>
-        sessions: new pouchdb \sessions
+        sessions:
+          new pouchdb do
+            \sessions
+            adapter: \websql
       | action.type is actions.SET_CURRENT_SESSION =>
         assign do
           {}
           state
-          current-session: new pouchdb "session-#{action.key}"
+          current-session:
+            new pouchdb do
+              "session-#{action.key}"
+              adapter: \websql
       | otherwise => state
     sessions: (state = [], action)->
       | action.type is actions.SET_SESSIONS =>
@@ -80,15 +86,10 @@ module.exports =
         current-index: action.current-index
         posts: action.posts
       | action.type is actions.ADD_POSTS =>
-        filtered-action-posts =
-          action.posts.filter (post)->
-            state.posts.reduce do
-              (p, c)-> if c.id is post.id then false else true
-              true
         assign do
           {}
           state
-          posts: state.posts.concat filtered-action-posts
+          posts: state.posts.concat action.posts
       | action.type is actions.NEXT_POST =>
         assign do
           {}
