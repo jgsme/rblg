@@ -73,13 +73,22 @@ server = new Hapi.Server!
                   opt =
                     | req.query.opt? => JSON.parse req.query.opt
                     | otherwise => {}
-                  err, res <- client[req.params.type] opt
-                  if err?
+                  callback = (err, res)->
+                    if err?
+                      return rep do
+                              status: \error
+                              message: err
+                    rep do
+                      status: \ok
+                      data: res
+                  args = []
+                  switch req.params.type
+                  | \dashboard => args = [opt, callback]
+                  | \reblog => args = [user.config_tumblr.base_hostname, opt, callback]
+                  | otherwise =>
                     return rep do
                             status: \error
-                            message: err
-                  rep do
-                    status: \ok
-                    data: res
+                            message: 'Not supported method'
+                  client[req.params.type].apply client, args
           ..start ->
               server.log \info, "server running: #{server.info.uri}"

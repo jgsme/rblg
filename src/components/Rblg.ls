@@ -49,12 +49,14 @@ class Rblg extends Component
           attach-session: (session-id)~> ~>
             @props.dispatch actions.attach-session session-id
             @props.dispatch actions.set-route \session
+          delete-session: (session-id)~> ~> @props.dispatch actions.delete-session session-id
       | \session =>
         create-element do
           Session
           session: @props.current-session
           next-post: ~> @props.dispatch actions.next-post!
           prev-post: ~> @props.dispatch actions.prev-post!
+          reblog: ~> @props.dispatch actions.reblog!
       | \config =>
         create-element do
           User

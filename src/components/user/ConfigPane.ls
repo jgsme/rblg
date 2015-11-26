@@ -52,6 +52,16 @@ class UserConfigPane extends Component
             id: \tumblr-token-secret
             value: @props.config-tumblr.token_secret
             on-change: @on-change \token_secret
+        DOM.li do
+          key: \tumblr-base-hostname
+          DOM.label do
+            htmlFor: \tumblr-base-hostname
+            'Tumblr base hostname:'
+          DOM.input do
+            type: \text
+            id: \tumblr-base-hostname
+            value: @props.config-tumblr.base_hostname
+            on-change: @on-change \base_hostname
       DOM.button do
         on-click: @props.save-config-tumblr
         \save

@@ -14,8 +14,7 @@ class Session extends Component
   on-key-down: (event)~>
     | event.key-code is 74 => @props.next-post!
     | event.key-code is 75 => @props.prev-post!
-    | event.key-code is 73 =>
-      console.log 'i'
+    | event.key-code is 73 => @props.reblog!
     | event.key-code is 76 =>
       console.log 'l'
 

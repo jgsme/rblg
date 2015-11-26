@@ -2,6 +2,7 @@ require! {
   \isomorphic-fetch : fetch
   \lodash.assign : assign
   \neo-async : async
+  pouchdb
 }
 
 action-types =
@@ -85,7 +86,32 @@ exports.fire-notification = fire-notification = (type, dispatch, get-state)-->
     | \login-success =>
       message: 'Login success'
       level: \success
+    | \config-saved =>
+      message: 'Config saved'
+      level: \success
+    | \session-deleted =>
+      message: 'Session deleted'
+      level: \success
+    | otherwise =>
+      message: type
+      level: \error
+      auto-dismiss: 0
   notification.add-notification message
+
+exports.fire-notification-with-uid = fire-notification-with-uid = (opt, dispatch, get-state)-->
+  {notification} = get-state!
+  {add-notification, remove-notification} = notification
+  switch opt.type
+  | \reblogging =>
+    add-notification do
+      message: 'Reblogging...'
+      level: \info
+      uid: opt.uid
+  | \rebloged =>
+    remove-notification opt.uid
+    add-notification do
+      message: 'Reblog done'
+      level: \success
 
 exports.check-auth = -> (dispatch, get-state)->
   {firebase} = get-state!
@@ -118,8 +144,10 @@ exports.save-config-tumblr = -> (dispatch, get-state)->
   refs
     .config-tumblr
     .set config-tumblr, (err)->
-      | err? => console.log err
-      | otherwise => console.log 'Config updated'
+      | err? => dispatch fire-notification err
+      | otherwise =>
+        dispatch fire-notification \config-saved
+        dispatch set-route \sessions
 
 exports.update-sessions = update-sessions = -> (dispatch, get-state)->
   {dbs} = get-state!
@@ -164,6 +192,7 @@ exports.load-posts = load-posts = (opt, callback, dispatch, get-state)-->
                 assign do
                   type: post.type
                   _id: "post-#{post.id}"
+                  id_raw: post.id
                   reblog_key: post.reblog_key
                   switch post.type
                   | \text =>
@@ -234,6 +263,20 @@ exports.attach-session = (key, dispatch, get-state)-->
           num: 0
       dispatch start-session 0
 
+exports.delete-session = (key, dispatch, get-state)-->
+  {dbs} = get-state!
+  {sessions} = dbs
+  new pouchdb do
+    "session-#{key}"
+    adapter: \websql
+  .destroy!
+  .then -> sessions.get key
+  .then (doc)-> sessions.remove doc
+  .then ->
+    dispatch fire-notification \session-deleted
+    dispatch update-sessions!
+  .catch (err)-> dispatch fire-notification err
+
 save-index = (num, db)->
   db
     .get \$current-index
@@ -256,3 +299,21 @@ exports.prev-post = -> (dispatch, get-state)->
     type: actions.PREV_POST
   {dbs, current-session} = get-state!
   save-index current-session.current-index, dbs.current-session
+
+exports.reblog = -> (dispatch, get-state)->
+  {user, current-session} = get-state!
+  post = current-session.posts[current-session.current-index]
+  dispatch fire-notification-with-uid do
+              type: \reblogging
+              uid: post.id_raw
+  opt =
+    id: post.id_raw
+    reblog_key: post.reblog_key
+  fetch "/api/reblog?uid=#{user.uid}&token=#{user.token}&opt=#{JSON.stringify opt}"
+    .then (res)-> res.json!
+    .then (json)->
+      | json.status is \ok =>
+        dispatch fire-notification-with-uid do
+          type: \rebloged
+          uid: post.id_raw
+      | json.status is \error => dispatch fire-notification json.message

@@ -12,6 +12,7 @@ inits =
     consumer_secret: ''
     token: ''
     token_secret: ''
+    base_hostname: ''
 
 module.exports =
   combine-reducers do
