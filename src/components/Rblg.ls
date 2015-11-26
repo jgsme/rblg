@@ -2,7 +2,12 @@ require! {
   react: {Component, DOM, create-element}
   \react-redux : {connect}
   \react-notification-system : Notification
-  \../actions.ls
+  \../actions/index.ls : {initialize, set-route}
+  \../actions/notification.ls : {set-notification}
+  \../actions/auth.ls : {check-auth, auth, unauth}
+  \../actions/sessions.ls : {update-sessions, new-session, delete-session}
+  \../actions/session.ls : {attach-session, next-post, prev-post, reblog}
+  \../actions/config.ls : {update-config-tumblr, save-config-tumblr}
   \./Menu.ls
   \./User.ls
   \./Sessions.ls
@@ -14,12 +19,12 @@ class Rblg extends Component
     document
       .get-element-by-id \firebaseUrl
       .get-attribute \data-url
-      |> actions.initialize
+      |> initialize
       |> @props.dispatch
 
   component-did-mount: ->
-    @props.dispatch actions.set-notification @refs.notification
-    @props.dispatch actions.check-auth!
+    @props.dispatch set-notification @refs.notification
+    @props.dispatch check-auth!
 
   render: ->
     DOM.div do
@@ -36,37 +41,37 @@ class Rblg extends Component
       create-element do
         Menu
         route: @props.route
-        move-config: ~> @props.dispatch actions.set-route \config
-        move-sessions: ~> @props.dispatch actions.set-route \sessions
-        move-session: ~> @props.dispatch actions.set-route \session
+        move-config: ~> @props.dispatch set-route \config
+        move-sessions: ~> @props.dispatch set-route \sessions
+        move-session: ~> @props.dispatch set-route \session
       switch @props.route
       | \sessions =>
         create-element do
           Sessions
           sessions: @props.sessions
-          update-sessions: ~> @props.dispatch actions.update-sessions!
-          new-session: ~> @props.dispatch actions.new-session!
+          update-sessions: ~> @props.dispatch update-sessions!
+          new-session: ~> @props.dispatch new-session!
           attach-session: (session-id)~> ~>
-            @props.dispatch actions.attach-session session-id
-            @props.dispatch actions.set-route \session
-          delete-session: (session-id)~> ~> @props.dispatch actions.delete-session session-id
+            @props.dispatch attach-session session-id
+            @props.dispatch set-route \session
+          delete-session: (session-id)~> ~> @props.dispatch delete-session session-id
       | \session =>
         create-element do
           Session
           session: @props.current-session
-          next-post: ~> @props.dispatch actions.next-post!
-          prev-post: ~> @props.dispatch actions.prev-post!
-          reblog: ~> @props.dispatch actions.reblog!
+          next-post: ~> @props.dispatch next-post!
+          prev-post: ~> @props.dispatch prev-post!
+          reblog: ~> @props.dispatch reblog!
       | \config =>
         create-element do
           User
           user: @props.user
           config-tumblr: @props.config-tumblr
-          check-auth: ~> @props.dispatch actions.check-auth!
-          auth: ~> @props.dispatch actions.auth!
-          unauth: ~> @props.dispatch actions.unauth!
-          update-config-tumblr: (key, value)~> @props.dispatch actions.update-config-tumblr key, value
-          save-config-tumblr: ~> @props.dispatch actions.save-config-tumblr!
+          check-auth: ~> @props.dispatch check-auth!
+          auth: ~> @props.dispatch auth!
+          unauth: ~> @props.dispatch unauth!
+          update-config-tumblr: (key, value)~> @props.dispatch update-config-tumblr key, value
+          save-config-tumblr: ~> @props.dispatch save-config-tumblr!
 
 module.exports =
   connect do

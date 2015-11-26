@@ -3,7 +3,7 @@ require! {
   firebase: Firebase
   \lodash.assign : assign
   pouchdb
-  \./actions.ls
+  \./actions/types.ls : action-types
 }
 
 inits =
@@ -17,16 +17,16 @@ inits =
 module.exports =
   combine-reducers do
     route: (state = \sessions, action)->
-      | action.type is actions.SET_ROUTE => action.route
+      | action.type is action-types.SET_ROUTE => action.route
       | otherwise => state
     firebase: (state = null, action)->
-      | action.type is actions.INIT => new Firebase action.firebase-url
+      | action.type is action-types.INIT => new Firebase action.firebase-url
       | otherwise => state
     notification: (state = null, action)->
-      | action.type is actions.SET_NOTIFICATION => action.notification
+      | action.type is action-types.SET_NOTIFICATION => action.notification
       | otherwise => state
     refs: (state = null, action)->
-      | action.type is actions.UPDATE_REFS =>
+      | action.type is action-types.UPDATE_REFS =>
         switch action.user
         | null => null
         | otherwise =>
@@ -48,25 +48,25 @@ module.exports =
           config-tumblr: config-tumblr-ref
       | otherwise => state
     user: (state = null, action)->
-      | action.type is actions.SET_USER => action.user
+      | action.type is action-types.SET_USER => action.user
       | otherwise => state
     config-tumblr: (state = inits.config-tumblr, action)->
-      | action.type is actions.UPDATE_CONFIG_TUMBLR =>
+      | action.type is action-types.UPDATE_CONFIG_TUMBLR =>
         state[action.key] = action.value
         assign {}, state
-      | action.type is actions.SET_CONFIG_TUMBLR =>
+      | action.type is action-types.SET_CONFIG_TUMBLR =>
         if action.config-tumblr is null
           inits.config-tumblr
         else
           action.config-tumblr
       | otherwise => state
     dbs: (state = null, action)->
-      | action.type is actions.INIT =>
+      | action.type is action-types.INIT =>
         sessions:
           new pouchdb do
             \sessions
             adapter: \websql
-      | action.type is actions.SET_CURRENT_SESSION =>
+      | action.type is action-types.SET_CURRENT_SESSION =>
         assign do
           {}
           state
@@ -76,27 +76,27 @@ module.exports =
               adapter: \websql
       | otherwise => state
     sessions: (state = [], action)->
-      | action.type is actions.SET_SESSIONS =>
+      | action.type is action-types.SET_SESSIONS =>
         if action.sessions isnt null
           action.sessions.map (.doc)
         else
           state
       | otherwise => state
     current-session: (state = null, action)->
-      | action.type is actions.UPDATE_CURRENT_SESSION =>
+      | action.type is action-types.UPDATE_CURRENT_SESSION =>
         current-index: action.current-index
         posts: action.posts
-      | action.type is actions.ADD_POSTS =>
+      | action.type is action-types.ADD_POSTS =>
         assign do
           {}
           state
           posts: state.posts.concat action.posts
-      | action.type is actions.NEXT_POST =>
+      | action.type is action-types.NEXT_POST =>
         assign do
           {}
           state
           current-index: state.current-index + 1
-      | action.type is actions.PREV_POST =>
+      | action.type is action-types.PREV_POST =>
         next = state.current-index - 1
         if next < 0 then next = 0
         assign do

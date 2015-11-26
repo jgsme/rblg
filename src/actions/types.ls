@@ -1,0 +1,17 @@
+<[
+  INIT
+  SET_NOTIFICATION
+  RETRIEVE_USER
+  SET_USER
+  UPDATE_CONFIG_TUMBLR
+  SET_CONFIG_TUMBLR
+  UPDATE_REFS
+  SET_SESSIONS
+  SET_CURRENT_SESSION
+  UPDATE_CURRENT_SESSION
+  ADD_POSTS
+  SET_ROUTE
+  NEXT_POST
+  PREV_POST
+]>.forEach (type)->
+  exports[type] = if Symbol instanceof Function then Symbol type else type

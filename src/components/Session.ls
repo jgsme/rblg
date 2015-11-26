@@ -8,16 +8,6 @@ require! {
 }
 
 class Session extends Component
-  component-did-mount: ->
-    document.add-event-listener \keydown, @on-key-down
-
-  on-key-down: (event)~>
-    | event.key-code is 74 => @props.next-post!
-    | event.key-code is 75 => @props.prev-post!
-    | event.key-code is 73 => @props.reblog!
-    | event.key-code is 76 =>
-      console.log 'l'
-
   render: ->
     DOM.div do
       style:
@@ -39,7 +29,6 @@ class Session extends Component
             "#{@props.session.current-index + 1}/#{@props.session.posts.length}"
         ].concat do
           @props.session.posts
-            # .slice @props.session.current-index
             .map (post, i)~>
               component =
                 switch post.type
@@ -55,7 +44,10 @@ class Session extends Component
                   display: if i is @props.session.current-index then \block else \none
                 create-element do
                   component
-                  post
+                  assign do
+                    post
+                    current-index: @props.session.current-index
+                    index-of-posts: i
       else
         ''
 

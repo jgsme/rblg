@@ -14,7 +14,7 @@
     "clean": "rm -rf $npm_package_config_DEST",
     "uglify": "uglifyjs --compress --mangle -- $npm_package_config_DEST/index.js > $npm_package_config_DEST/index.min.js && cat $npm_package_config_DEST/index.min.js > $npm_package_config_DEST/index.js && rm -f $npm_package_config_DEST/index.min.js",
     "start": "lsc src/server.ls",
-    "watch": "chokidar '?(src/components/*.ls|src/components/**/*.ls|src/actions.ls|src/index.ls|src/reducers.ls)' -c 'npm run build:dev'"
+    "watch": "chokidar '?(src/components/*.ls|src/actions/*.ls|src/components/**/*.ls|src/actions.ls|src/index.ls|src/reducers.ls)' -c 'npm run build:dev'"
   },
   "repository": {
     "type": "git",

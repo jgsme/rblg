@@ -12,13 +12,15 @@ class Photo extends Component
         background-image: "url(#{@props.photos.0.original_size.url})"
         background-position: \center
         background-repeat: \no-repeat
-      DOM.img do # for cache
-        src: @props.photos.0.original_size.url
-        style:
-          width: \1px
-          height: \1px
-          position: \absolute
-          left: \-5px
-          top: \-5px
+      if @props.index-of-posts >= @props.current-index # for cache
+        DOM.img do
+          src: @props.photos.0.original_size.url
+          style:
+            width: \1px
+            height: \1px
+            position: \absolute
+            left: \-5px
+            top: \-5px
+      else ''
 
 module.exports = Photo
