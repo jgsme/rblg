@@ -41,6 +41,7 @@ class Rblg extends Component
       create-element do
         Menu
         route: @props.route
+        liked: @props.current-session.liked
         move-config: ~> @props.dispatch set-route \config
         move-sessions: ~> @props.dispatch set-route \sessions
         move-session: ~> @props.dispatch set-route \session

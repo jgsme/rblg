@@ -14,6 +14,11 @@ inits =
     token_secret: ''
     base_hostname: ''
     blog_name: ''
+  current-session:
+    current-index: 0
+    posts: []
+    liked: false
+    api-lock: false
 
 module.exports =
   combine-reducers do
@@ -87,10 +92,14 @@ module.exports =
         else
           state
       | otherwise => state
-    current-session: (state = null, action)->
+    current-session: (state = inits.current-session, action)->
       | action.type is action-types.UPDATE_CURRENT_SESSION =>
-        current-index: action.current-index
-        posts: action.posts
+        assign do
+          {}
+          state
+          current-index: action.current-index
+          posts: action.posts
+          liked: action.posts[action.current-index].liked
       | action.type is action-types.API_LOCK =>
         assign do
           {}
@@ -107,10 +116,13 @@ module.exports =
           state
           posts: state.posts.concat action.posts
       | action.type is action-types.NEXT_POST =>
+        next = state.current-index + 1
+        if next >= state.posts.length then next = state.current-index
         assign do
           {}
           state
-          current-index: state.current-index + 1
+          current-index: next
+          liked: state.posts[next].liked
       | action.type is action-types.PREV_POST =>
         next = state.current-index - 1
         if next < 0 then next = 0
@@ -118,4 +130,5 @@ module.exports =
           {}
           state
           current-index: next
+          liked: state.posts[next].liked
       | otherwise => state

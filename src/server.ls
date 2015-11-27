@@ -62,6 +62,7 @@ tumblr-handler = (type, user, opt, callback)->
     else
       args = [opt, cb]
   | \reblog => args = [user.config_tumblr.base_hostname, opt, cb]
+  | \like => args = [opt.id, opt.reblog_key, cb]
   | otherwise => return callback new Error 'Not supported method'
   client[type].apply client, args
 

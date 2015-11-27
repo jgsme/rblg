@@ -31,6 +31,7 @@ class Menu extends Component
             key: \menu-like
             style:
               margin: '0px 10px'
+              color: if @props.liked then \#BC523C else \#fff
             className: 'fa fa-heart'
           DOM.i do
             key: \menu-back

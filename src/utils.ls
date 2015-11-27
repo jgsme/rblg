@@ -6,11 +6,12 @@ exports.dashboard-handler = (post)->
   switch post.type
   | \text, \photo, \quote, \link =>
     assign do
-      blog_name: post.blog_name
       type: post.type
       _id: "post-#{post.id}"
       id_raw: post.id
       reblog_key: post.reblog_key
+      blog_name: post.blog_name
+      liked: post.liked
       switch post.type
       | \text =>
         title: post.title

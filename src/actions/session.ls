@@ -118,26 +118,32 @@ exports.prev-post = -> (dispatch, get-state)->
   {dbs, current-session} = get-state!
   dispatch save-index current-session.current-index, dbs.current-session
 
-exports.reblog = -> (dispatch, get-state)->
+reaction-to-post = (type, dispatch, get-state)-->
   {user, current-session} = get-state!
   post = current-session.posts[current-session.current-index]
   dispatch do
     notify-with-uid do
-      type: \reblogging
+      type: type
       uid: post.id_raw
   opt =
     id: post.id_raw
     reblog_key: post.reblog_key
-  fetch "/api/reblog?uid=#{user.uid}&token=#{user.token}&opt=#{JSON.stringify opt}"
+  fetch "/api/#{type}?uid=#{user.uid}&token=#{user.token}&opt=#{JSON.stringify opt}"
     .then (res)-> res.json!
     .then (json)->
       | json.status is \ok =>
         dispatch notify-with-uid do
-          type: \rebloged
+          type: "#{type}ed"
           uid: post.id_raw
       | json.status is \error =>
         console.error json.message
         dispatch notify json.message
+
+exports.reblog = -> (dispatch, get-state)->
+  dispatch reaction-to-post \reblog
+
+exports.like = -> (dispatch, get-state)->
+  dispatch reaction-to-post \like
 
 exports.start-session = start-session = (current-index, dispatch, get-state)-->
   {dbs} = get-state!

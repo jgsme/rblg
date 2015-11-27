@@ -29,12 +29,12 @@ exports.notify-with-uid = (opt, dispatch, get-state)-->
   {notification} = get-state!
   {add-notification, remove-notification} = notification
   switch opt.type
-  | \reblogging =>
+  | \reblog, \like =>
     add-notification do
-      message: 'Reblog...'
+      message: "#{opt.type}..."
       level: \info
       uid: opt.uid
-  | \rebloged =>
+  | \rebloged, \likeed =>
     remove-notification opt.uid
     add-notification do
       message: 'Done'
