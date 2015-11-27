@@ -31,12 +31,13 @@ exports.load-posts = load-posts = (opt, callback, dispatch, get-state)-->
         dispatch notify json.message
 
 exports.apply-posts = apply-posts = (data, dispatch, get-state)-->
-  {current-session} = get-state!
+  {current-session, config-tumblr} = get-state!
   posts-candidate =
     data
       .map dashboard-handler
       .filter (isnt null)
       |> (posts)-> dupulicate-resolver current-session.posts, posts
+      |> (posts)-> posts.filter (post)-> post.blog_name isnt config-tumblr.blog_name
   dispatch add-posts posts-candidate
   dispatch save-posts posts-candidate
 

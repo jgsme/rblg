@@ -13,6 +13,7 @@ inits =
     token: ''
     token_secret: ''
     base_hostname: ''
+    blog_name: ''
 
 module.exports =
   combine-reducers do
@@ -58,7 +59,11 @@ module.exports =
         if action.config-tumblr is null
           inits.config-tumblr
         else
-          action.config-tumblr
+          assign do
+            {}
+            state
+            action.config-tumblr
+            blog_name: action.config-tumblr.base_hostname.replace /\.tumblr\.com/, ''
       | otherwise => state
     dbs: (state = null, action)->
       | action.type is action-types.INIT =>
