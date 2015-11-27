@@ -1,9 +1,9 @@
 require! {
   async
-  \./types.ls : {ADD_POSTS, UPDATE_CURRENT_SESSION, PREV_POST, NEXT_POST}
+  \./types.ls : {ADD_POSTS, UPDATE_CURRENT_SESSION, API_LOCK, API_UNLOCK, PREV_POST, NEXT_POST}
   \./notification.ls : {notify, notify-with-uid}
   \./sessions.ls : {set-current-session}
-  \../utils.ls : {dashboard-handler}
+  \../utils.ls : {dashboard-handler, dupulicate-resolver}
 }
 
 exports.add-posts = add-posts = (posts)->
@@ -25,30 +25,54 @@ exports.load-posts = load-posts = (opt, callback, dispatch, get-state)-->
     .then (res)-> res.json!
     .then (json)->
       if json.status is \ok
-        posts-candidate =
-          json.data.posts
-            .map dashboard-handler
-            .filter (isnt null)
-            |> (posts)-> dupulicate-resolver current-session.posts, posts
-        dispatch add-posts posts-candidate
-        dispatch save-posts posts-candidate
-        callback!
+        callback json
       else
         console.error json
-        notify json.message
+        dispatch notify json.message
+
+exports.apply-posts = apply-posts = (data, dispatch, get-state)-->
+  {current-session} = get-state!
+  posts-candidate =
+    data
+      .map dashboard-handler
+      .filter (isnt null)
+      |> (posts)-> dupulicate-resolver current-session.posts, posts
+  dispatch add-posts posts-candidate
+  dispatch save-posts posts-candidate
 
 exports.init-posts = init-posts = -> (dispatch, get-state)->
+  dispatch do
+    type: API_LOCK
   async.each-series do
-    [0 til 10]
+    [0 til 12]
     (n, callback)->
       dispatch do
         load-posts do
           offset: n * 20
-          callback
-    (err)->
-      if err?
-        console.error err
-        dispatch notify err
+          (json)->
+            dispatch apply-posts json.data
+            callback!
+    ->
+      dispatch do
+        type: API_UNLOCK
+
+exports.get-posts = get-posts = (opt, dispatch, get-state)-->
+  {current-session} = get-state!
+  {posts} = current-session
+  dispatch do
+    type: API_LOCK
+  dispatch do
+    load-posts do
+      last-id: posts[*-1].id_raw
+      first-id: posts.0.id_raw
+      length: posts.length
+      (json)->
+        if json.status is \ok
+          dispatch apply-posts json.data
+        else
+          notify json.message
+        dispatch do
+          type: API_UNLOCK
 
 exports.update-current-session = update-current-session = (rows, current-index)->
   type: UPDATE_CURRENT_SESSION
@@ -73,19 +97,27 @@ exports.save-index = save-index = (num, db, dispatch, get-state)-->
         console.error err
         dispatch notify err
 
-exports.next-post = next-post = -> (dispatch, get-state)->
+exports.check-rest-post = check-rest-post = -> (dispatch, get-state)->
+  {current-session} = get-state!
+  if current-session.current-index > current-session.posts.length - 40 and !current-session.api-lock
+    dispatch do
+      get-posts do
+        strategy: \default
+
+exports.next-post = -> (dispatch, get-state)->
   dispatch do
     type: NEXT_POST
   {dbs, current-session} = get-state!
   dispatch save-index current-session.current-index, dbs.current-session
+  dispatch check-rest-post!
 
-exports.prev-post = prev-post = -> (dispatch, get-state)->
+exports.prev-post = -> (dispatch, get-state)->
   dispatch do
     type: PREV_POST
   {dbs, current-session} = get-state!
   dispatch save-index current-session.current-index, dbs.current-session
 
-exports.reblog = reblog = -> (dispatch, get-state)->
+exports.reblog = -> (dispatch, get-state)->
   {user, current-session} = get-state!
   post = current-session.posts[current-session.current-index]
   dispatch do
@@ -106,33 +138,24 @@ exports.reblog = reblog = -> (dispatch, get-state)->
         console.error json.message
         dispatch notify json.message
 
-keyboard-hander = (dispatch, get-state, event)-->
-  {route} = get-state!
-  {key-code} = event
-  switch route
-  | \session =>
-    switch key-code
-    | 74 => dispatch next-post!
-    | 75 => dispatch prev-post!
-    | 73 => dispatch reblog!
-    | 76 => console.log 'l'
-
 exports.start-session = start-session = (current-index, dispatch, get-state)-->
   {dbs} = get-state!
-  document.add-event-listener \keydown, keyboard-hander dispatch, get-state
   dbs
     .current-session
     .query do
       (doc, emit)-> if doc._id.0 isnt \$ then emit doc
       include_docs: true
     .then (res)->
-      rows = res.rows.map (.doc)
+      rows =
+        res
+          .rows
+          .map (.doc)
+          .sort (x, y)-> y.id_raw - x.id_raw
       dispatch update-current-session rows, current-index
       dispatch check-current-session!
 
 exports.attach-session = (key, dispatch, get-state)-->
   dispatch set-current-session key
-
   {dbs, sessions} = get-state!
   {current-session} = dbs
   current-session

@@ -86,6 +86,16 @@ module.exports =
       | action.type is action-types.UPDATE_CURRENT_SESSION =>
         current-index: action.current-index
         posts: action.posts
+      | action.type is action-types.API_LOCK =>
+        assign do
+          {}
+          state
+          api-lock: true
+      | action.type is action-types.API_UNLOCK =>
+        assign do
+          {}
+          state
+          api-lock: false
       | action.type is action-types.ADD_POSTS =>
         assign do
           {}

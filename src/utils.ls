@@ -1,3 +1,7 @@
+require! {
+  \lodash.assign : assign
+}
+
 exports.dashboard-handler = (post)->
   switch post.type
   | \text, \photo, \quote, \link =>
