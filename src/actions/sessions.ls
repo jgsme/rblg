@@ -19,7 +19,10 @@ exports.update-sessions = update-sessions = -> (dispatch, get-state)->
     .sessions
     .all-docs do
       include_docs: true
-    .then (res)-> dispatch set-sessions res.rows
+    .then (res)->
+      dispatch do
+        set-sessions do
+         res.rows.sort (x, y)-> y.doc.created-at - x.doc.created-at
 
 exports.new-session = -> (dispatch, get-state)->
   {dbs} = get-state!
