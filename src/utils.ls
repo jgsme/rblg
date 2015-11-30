@@ -19,6 +19,7 @@ exports.dashboard-handler = (post)->
       | \photo =>
         photos: post.photos
         caption: post.caption
+        is-photoset: post.photos.length > 1
       | \quote =>
         text: post.text
         source: post.source

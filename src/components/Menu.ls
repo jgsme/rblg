@@ -6,7 +6,8 @@ class Menu extends Component
   render: ->
     DOM.div do
       style:
-        position: \absolute
+        position: \fixed
+        will-change: \transform
         bottom: \5%
         right: \5%
         font-size: \36px

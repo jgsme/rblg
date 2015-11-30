@@ -8,19 +8,25 @@ class Photo extends Component
       style:
         width: \100%
         height: \100%
-        background-size: \contain
-        background-image: "url(#{@props.photos.0.original_size.url})"
-        background-position: \center
-        background-repeat: \no-repeat
-      if @props.index-of-posts >= @props.current-index # for cache
-        DOM.img do
-          src: @props.photos.0.original_size.url
+      @props.photos.map (photo)~>
+        DOM.div do
+          key: photo.original_size.url
           style:
-            width: \1px
-            height: \1px
-            position: \absolute
-            left: \-5px
-            top: \-5px
-      else ''
+            width: \100%
+            height: \100%
+            background-size: \contain
+            background-image: "url(#{photo.original_size.url})"
+            background-position: \center
+            background-repeat: \no-repeat
+          if @props.index-of-posts >= @props.current-index # for cache
+            DOM.img do
+              src: photo.original_size.url
+              style:
+                width: \1px
+                height: \1px
+                position: \absolute
+                left: \-5px
+                top: \-5px
+          else ''
 
 module.exports = Photo

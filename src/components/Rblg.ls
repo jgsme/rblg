@@ -30,12 +30,11 @@ class Rblg extends Component
     DOM.div do
       className: \container
       style:
-        width: "#{window.inner-width}px"
-        height: "#{window.inner-height}px"
+        width: \100%
+        height: \100%
         position: \absolute
         top: 0
         left: 0
-        background-color: \#36465d
       create-element do
         Notification
         ref: \notification

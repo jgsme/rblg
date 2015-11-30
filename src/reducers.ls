@@ -18,6 +18,7 @@ inits =
     current-index: 0
     posts: []
     liked: false
+    is-photoset: false
     api-lock: false
     db: null
 
@@ -104,6 +105,7 @@ module.exports =
           current-index: action.current-index
           posts: action.posts
           liked: action.posts[action.current-index]?.liked
+          is-photoset: action.posts[action.current-index]?.photos?.length > 1
       | action.type is action-types.SET_CURRENT_SESSION =>
         assign do
           {}
@@ -136,6 +138,7 @@ module.exports =
           state
           current-index: next
           liked: state.posts[next].liked
+          is-photoset: state.posts[next].photos?.length > 1
       | action.type is action-types.PREV_POST =>
         next = state.current-index - 1
         if next < 0 then next = 0
@@ -144,4 +147,5 @@ module.exports =
           state
           current-index: next
           liked: state.posts[next].liked
+          is-photoset: state.posts[next].photos?.length > 1
       | otherwise => state
