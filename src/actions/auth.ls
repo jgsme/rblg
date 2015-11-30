@@ -1,19 +1,9 @@
 require! {
   \./config.ls : {set-config-tumblr}
   \./user.ls : {set-user}
-  \./index.ls : {set-route, update-refs}
+  \./index.ls : {set-route, update-refs, value-handler}
   \./notification.ls : {notify}
 }
-
-value-handler = (dispatch, type, snapshot)-->
-  fn =
-    switch type
-    | \config-tumblr => set-config-tumblr
-    | otherwise => null
-  if fn is null then return
-  val = snapshot.val!
-  if val is null then return
-  dispatch fn val
 
 exports.check-auth = -> (dispatch, get-state)->
   {firebase} = get-state!

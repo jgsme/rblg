@@ -19,6 +19,7 @@ inits =
     posts: []
     liked: false
     api-lock: false
+    db: null
 
 module.exports =
   combine-reducers do
@@ -44,14 +45,24 @@ module.exports =
           config-tumblr-ref =
             user-ref
               .child \config_tumblr
+          sessions-ref =
+            user-ref
+              .child \sessions
 
           config-tumblr-ref.on do
             \value
             value-handler \config-tumblr
+          sessions-ref.on do
+            \value
+            value-handler \sessions
+          sessions-ref.on do
+            \child_removed
+            value-handler \session-remove
 
           root: firebase
           user: user-ref
           config-tumblr: config-tumblr-ref
+          sessions: sessions-ref
       | otherwise => state
     user: (state = null, action)->
       | action.type is action-types.SET_USER => action.user
@@ -70,27 +81,20 @@ module.exports =
             action.config-tumblr
             blog_name: action.config-tumblr.base_hostname.replace /\.tumblr\.com/, ''
       | otherwise => state
-    dbs: (state = null, action)->
-      | action.type is action-types.INIT =>
-        sessions:
-          new pouchdb do
-            \sessions
-            adapter: \websql
-      | action.type is action-types.SET_CURRENT_SESSION =>
-        assign do
-          {}
-          state
-          current-session:
-            new pouchdb do
-              "session-#{action.key}"
-              adapter: \websql
-      | otherwise => state
     sessions: (state = [], action)->
       | action.type is action-types.SET_SESSIONS =>
         if action.sessions isnt null
-          action.sessions.map (.doc)
+          Object
+            .keys action.sessions
+            .map (key)->
+              assign do
+                action.sessions[key]
+                id: key
+            .sort (x, y)-> y.created-at - x.created-at
         else
           state
+      | action.type is action-types.REMOVE_SESSION =>
+        state.filter (session)-> session.id isnt action.key
       | otherwise => state
     current-session: (state = inits.current-session, action)->
       | action.type is action-types.UPDATE_CURRENT_SESSION =>
@@ -99,7 +103,16 @@ module.exports =
           state
           current-index: action.current-index
           posts: action.posts
-          liked: action.posts[action.current-index].liked
+          liked: action.posts[action.current-index]?.liked
+      | action.type is action-types.SET_CURRENT_SESSION =>
+        assign do
+          {}
+          state
+          key: action.key
+          db:
+            new pouchdb do
+              "session-#{action.key}"
+              adapter: \websql
       | action.type is action-types.API_LOCK =>
         assign do
           {}

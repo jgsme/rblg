@@ -9,6 +9,7 @@ require! {
   request
   \tumblr.js : tumblr
   \lodash.uniq : uniq
+  \neo-async : async
 }
 
 firebase =
@@ -16,58 +17,43 @@ firebase =
     .toString!
     |> JSON.parse
 
+Fire = ({uid, token})->
+  user-root = "#{firebase.url}/users/#{uid}"
+  _get = (path, callback)->
+    request "#{path}.json?auth=#{token}", callback
+  _patch = (path, body, callback)->
+    request do
+      method: \PATCH
+      url: "#{path}.json?auth=#{token}"
+      json: true
+      body: body
+      callback
+
+  user: (callback)-> _get user-root, callback
+  set-metadata: (key, body, callback)-> _patch "#{user-root}/sessions/#{key}", body, callback
+
 tumblr-handler = (type, user, opt, callback)->
   client = tumblr.create-client user.config_tumblr
   cb = (err, res)->
     if err?
       callback err
     else
-      callback null, if type is \dashboard then res.posts else res
-  inf-cb = (user, opt, weight, err, res)-->
-    filtered-posts = res.posts.filter (post)-> post.id < last-id
-    switch filtered-posts.length
-    | 20 =>
-      opt.since_id = filtered-posts.0.id
-      if opt.cache?
-        opt.cache = opt.cache.concat filtered-posts
-        opt.cache = uniq opt.cache, \id
-      else
-        opt.cache = filtered-posts
-      tumblr-handler \dashboard, user, opt, callback
-    | 0 =>
-      if opt.cache?
-        return callback null, opt.cache
-      opt.weight = weight - 1
-      tumblr-handler \dashboard, user, opt, callback
-    | otherwise =>
-      r =
-        if opt.cache?
-          uniq do
-            opt.cache.concat filtered-posts
-            \id
-        else filtered-posts
-      callback null, r
+      callback null, res
+
   args = []
   switch type
-  | \dashboard =>
-    if opt.since_id?
-      console.log opt.since_id
-      args = [{since_id: opt.since_id}, inf-cb user, opt, opt.weight]
-    else if opt.last-id? and opt.first-id?
-      {last-id, first-id, length, weight} = opt
-      if weight is undefined then weight = 20
-      estimate-id = last-id - Math.round(((first-id - last-id) / length) * weight)
-      console.log estimate-id
-      args = [{since_id: estimate-id}, inf-cb user, opt, weight]
-    else
-      args = [opt, cb]
+  | \dashboard => args = [opt, cb]
   | \reblog => args = [user.config_tumblr.base_hostname, opt, cb]
   | \like => args = [opt.id, opt.reblog_key, cb]
   | otherwise => return callback new Error 'Not supported method'
   client[type].apply client, args
 
 api-handler = (req, rep)->
-  err, res, json <- request "#{firebase.url}/users/#{req.query.uid}.json?auth=#{req.query.token}"
+  fire =
+    Fire do
+      uid: req.query.uid
+      token: req.query.token
+  err, res, json <- fire.user
   if err?
     return
       rep do
@@ -83,15 +69,88 @@ api-handler = (req, rep)->
     opt =
       | req.query.opt? => JSON.parse req.query.opt
       | otherwise => {}
-    err, res <- tumblr-handler req.params.type, user, opt
-    if err?
-      rep do
-        status: \error
-        message: err
-    else
+    switch
+    | opt.is-init =>
+      err, res <- async.map-limit do
+        [0 til 12]
+        4
+        (n, cb)-> tumblr-handler \dashboard, user, {offset: n * 20}, cb
+      posts =
+        res.reduce do
+          (prev, current)-> prev.concat current.posts
+          []
+      if err?
+        return
+          rep do
+            status: \error
+            message: err
+      err, res, json <- fire.set-metadata do
+                          opt.key
+                          created-at: user.sessions[opt.key].created-at
+                          first-id: posts.0.id
+                          last-id: posts[*-1].id
+                          length: posts.length
+      if err?
+        return
+          rep do
+            status: \error
+            message: err
       rep do
         status: \ok
-        data: res
+        data: posts
+    | opt.is-inf =>
+      {key} = opt
+      session = user.sessions[key]
+      weight = 20
+      {last-id, first-id, length} = session
+      calc = (w)-> last-id - Math.round(((first-id - last-id) / length) * w)
+      fn = (memo, opt)->
+        err, res <- tumblr-handler \dashboard, user, opt
+        filtered-posts = res.posts.filter (post)-> post.id < last-id
+        switch filtered-posts.length
+        | 20 =>
+          opt.since_id = filtered-posts.0.id
+          next-memo = memo.concat filtered-posts
+          next-memo = uniq memo, \id
+          fn next-memo, opt
+        | 0 =>
+          if memo.length > 0
+            return callback null, memo
+          weight -= 1
+          opt.since_id = calc weight
+          fn memo, opt
+        | otherwise =>
+          posts =
+            if memo.length > 0
+              uniq do
+                memo.concat filtered-posts
+                \id
+            else
+              filtered-posts
+          session.last-id = posts[*-1].id
+          session.length += posts.length
+          err, res, json <- fire.set-metadata key, session
+          if err?
+            rep do
+              status: \error
+              message: err
+          else
+            rep do
+              status: \ok
+              data: posts
+      fn do
+        []
+        since_id: calc weight
+    | otherwise =>
+      err, res <- tumblr-handler req.params.type, user, opt
+      if err?
+        rep do
+          status: \error
+          message: err
+      else
+        rep do
+          status: \ok
+          data: res
 
 main = (err)->
   if err? then throw err

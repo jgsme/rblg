@@ -1,7 +1,22 @@
 require! {
   \./types.ls : {INIT, UPDATE_REFS, SET_ROUTE}
   \./session.ls : {next-post, prev-post, reblog, like}
+  \./sessions.ls : {set-sessions, remove-session}
+  \./config.ls : {set-config-tumblr}
 }
+
+exports.value-handler = (dispatch, type, snapshot)-->
+  fn =
+    switch type
+    | \config-tumblr => set-config-tumblr
+    | \sessions => set-sessions
+    | \session-remove => remove-session
+    | otherwise => null
+  if fn is null then return
+  val = snapshot.val!
+  key = snapshot.key!
+  if val is null then return
+  dispatch fn val, key
 
 keyboard-hander = (dispatch, get-state, event)-->
   {route} = get-state!

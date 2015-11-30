@@ -1,5 +1,4 @@
 require! {
-  async
   \./types.ls : {ADD_POSTS, UPDATE_CURRENT_SESSION, API_LOCK, API_UNLOCK, PREV_POST, NEXT_POST}
   \./notification.ls : {notify, notify-with-uid}
   \./sessions.ls : {set-current-session}
@@ -10,22 +9,29 @@ exports.add-posts = add-posts = (posts)->
   type: ADD_POSTS
   posts: posts
 
+exports.lock-api = lock-api = ->
+  type: API_LOCK
+
+exports.unlock-api = unlock-api = ->
+  type: API_UNLOCK
+
 exports.save-posts = save-posts = (posts, dispatch, get-state)-->
-  {dbs} = get-state!
-  {current-session} = dbs
+  {current-session} = get-state!
   current-session
+    .db
     .bulk-docs posts
     .catch (err)->
       console.error err
       dispatch notify err
 
-exports.load-posts = load-posts = (opt, callback, dispatch, get-state)-->
+exports.load-posts = load-posts = (opt, dispatch, get-state)-->
   {user, current-session} = get-state!
   fetch "/api/dashboard?uid=#{user.uid}&token=#{user.token}&opt=#{JSON.stringify opt}"
     .then (res)-> res.json!
     .then (json)->
       if json.status is \ok
-        callback json
+        dispatch apply-posts json.data
+        dispatch unlock-api!
       else
         console.error json
         dispatch notify json.message
@@ -42,49 +48,37 @@ exports.apply-posts = apply-posts = (data, dispatch, get-state)-->
   dispatch save-posts posts-candidate
 
 exports.init-posts = init-posts = -> (dispatch, get-state)->
-  dispatch do
-    type: API_LOCK
-  async.each-series do
-    [0 til 12]
-    (n, callback)->
-      dispatch do
-        load-posts do
-          offset: n * 20
-          (json)->
-            dispatch apply-posts json.data
-            callback!
-    ->
-      dispatch do
-        type: API_UNLOCK
-
-exports.get-posts = get-posts = (opt, dispatch, get-state)-->
   {current-session} = get-state!
-  {posts} = current-session
-  dispatch do
-    type: API_LOCK
+  dispatch lock-api!
   dispatch do
     load-posts do
-      last-id: posts[*-1].id_raw
-      first-id: posts.0.id_raw
-      length: posts.length
-      (json)->
-        if json.status is \ok
-          dispatch apply-posts json.data
-        else
-          notify json.message
-        dispatch do
-          type: API_UNLOCK
+      is-init: true
+      key: current-session.key
+
+exports.get-posts = get-posts = -> (dispatch, get-state)->
+  {current-session} = get-state!
+  dispatch lock-api!
+  dispatch do
+    load-posts do
+      is-inf: true
+      key: current-session.key
 
 exports.update-current-session = update-current-session = (rows, current-index)->
   type: UPDATE_CURRENT_SESSION
   posts: rows
   current-index: current-index
 
-exports.check-current-session = check-current-session = -> (dispatch, get-state)->
-  {current-session} = get-state!
-  if current-session.posts.length is 0 then dispatch init-posts!
+exports.check-current-session = check-current-session = (key, dispatch, get-state)-->
+  {sessions} = get-state!
+  current-session =
+    sessions
+      .filter (session)-> session.id is key
+      .0
+  if current-session.length is 0 then dispatch init-posts!
 
-exports.save-index = save-index = (num, db, dispatch, get-state)-->
+exports.save-index = save-index = (num, dispatch, get-state)-->
+  {current-session} = get-state!
+  {db} = current-session
   db
     .get \$current-index
     .then (doc)->
@@ -100,23 +94,21 @@ exports.save-index = save-index = (num, db, dispatch, get-state)-->
 
 exports.check-rest-post = check-rest-post = -> (dispatch, get-state)->
   {current-session} = get-state!
-  if current-session.current-index > current-session.posts.length - 40 and !current-session.api-lock
-    dispatch do
-      get-posts do
-        strategy: \default
+  if current-session.current-index > current-session.posts.length - 80 and !current-session.api-lock
+    dispatch get-posts!
 
 exports.next-post = -> (dispatch, get-state)->
   dispatch do
     type: NEXT_POST
-  {dbs, current-session} = get-state!
-  dispatch save-index current-session.current-index, dbs.current-session
+  {current-session} = get-state!
+  dispatch save-index current-session.current-index
   dispatch check-rest-post!
 
 exports.prev-post = -> (dispatch, get-state)->
   dispatch do
     type: PREV_POST
-  {dbs, current-session} = get-state!
-  dispatch save-index current-session.current-index, dbs.current-session
+  {current-session} = get-state!
+  dispatch save-index current-session.current-index
 
 reaction-to-post = (type, dispatch, get-state)-->
   {user, current-session} = get-state!
@@ -145,10 +137,10 @@ exports.reblog = -> (dispatch, get-state)->
 exports.like = -> (dispatch, get-state)->
   dispatch reaction-to-post \like
 
-exports.start-session = start-session = (current-index, dispatch, get-state)-->
-  {dbs} = get-state!
-  dbs
-    .current-session
+exports.start-session = start-session = (key, current-index, dispatch, get-state)-->
+  {current-session} = get-state!
+  current-session
+    .db
     .query do
       (doc, emit)-> if doc._id.0 isnt \$ then emit doc
       include_docs: true
@@ -159,18 +151,19 @@ exports.start-session = start-session = (current-index, dispatch, get-state)-->
           .map (.doc)
           .sort (x, y)-> y.id_raw - x.id_raw
       dispatch update-current-session rows, current-index
-      dispatch check-current-session!
+      dispatch check-current-session key
 
 exports.attach-session = (key, dispatch, get-state)-->
   dispatch set-current-session key
-  {dbs, sessions} = get-state!
-  {current-session} = dbs
+  {current-session} = get-state!
   current-session
+    .db
     .get \$current-index
-    .then (doc)-> dispatch start-session doc.num
+    .then (doc)-> dispatch start-session key, doc.num
     .catch (err)->
       current-session
+        .db
         .put do
           _id: \$current-index
           num: 0
-      dispatch start-session 0
+      dispatch start-session key, 0

@@ -35,6 +35,7 @@ class Rblg extends Component
         position: \absolute
         top: 0
         left: 0
+        background-color: \#36465d
       create-element do
         Notification
         ref: \notification
@@ -50,7 +51,6 @@ class Rblg extends Component
         create-element do
           Sessions
           sessions: @props.sessions
-          update-sessions: ~> @props.dispatch update-sessions!
           new-session: ~> @props.dispatch new-session!
           attach-session: (session-id)~> ~>
             @props.dispatch attach-session session-id

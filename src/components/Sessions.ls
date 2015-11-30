@@ -3,8 +3,6 @@ require! {
 }
 
 class Sessions extends Component
-  component-did-mount: -> @props.update-sessions!
-
   render: ->
     DOM.div do
       className: \sessions-container
@@ -17,10 +15,10 @@ class Sessions extends Component
               className: \session
               new Date session.created-at .toString!
             DOM.button do
-              on-click: @props.attach-session session._id
+              on-click: @props.attach-session session.id
               \attach
             DOM.button do
-              on-click: @props.delete-session session._id
+              on-click: @props.delete-session session.id
               \delete
       DOM.button do
         className: \new-session
