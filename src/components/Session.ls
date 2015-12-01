@@ -9,7 +9,6 @@ class Session extends Component
     DOM.div do
       style:
         width: \100%
-        height: \100%
       ref: \container
       DOM.div do
         style:

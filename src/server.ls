@@ -101,24 +101,21 @@ api-handler = (req, rep)->
     | opt.is-inf =>
       {key} = opt
       session = user.sessions[key]
-      weight = 20
       {last-id, first-id, length} = session
       calc = (w)-> last-id - Math.round(((first-id - last-id) / length) * w)
-      fn = (memo, opt)->
+      fn = (memo, opt, weight)->
         err, res <- tumblr-handler \dashboard, user, opt
         filtered-posts = res.posts.filter (post)-> post.id < last-id
-        switch filtered-posts.length
-        | 20 =>
+        switch
+        | filtered-posts.length is 20 =>
           opt.since_id = filtered-posts.0.id
           next-memo = memo.concat filtered-posts
           next-memo = uniq memo, \id
-          fn next-memo, opt
-        | 0 =>
-          if memo.length > 0
-            return callback null, memo
-          weight -= 1
+          fn next-memo, opt, weight
+        | filtered-posts.length is 0 and memo.length is 0 =>
+          weight += 1
           opt.since_id = calc weight
-          fn memo, opt
+          fn memo, opt, weight
         | otherwise =>
           posts =
             if memo.length > 0
@@ -140,7 +137,8 @@ api-handler = (req, rep)->
               data: posts
       fn do
         []
-        since_id: calc weight
+        since_id: calc 20
+        20
     | otherwise =>
       err, res <- tumblr-handler req.params.type, user, opt
       if err?

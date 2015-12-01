@@ -24,7 +24,7 @@ exports.save-posts = save-posts = (posts, dispatch, get-state)-->
       console.error err
       dispatch notify err
 
-exports.load-posts = load-posts = (opt, dispatch, get-state)-->
+exports.load-posts = load-posts = (opt, callback, dispatch, get-state)-->
   {user, current-session} = get-state!
   fetch "/api/dashboard?uid=#{user.uid}&token=#{user.token}&opt=#{JSON.stringify opt}"
     .then (res)-> res.json!
@@ -32,6 +32,7 @@ exports.load-posts = load-posts = (opt, dispatch, get-state)-->
       if json.status is \ok
         dispatch apply-posts json.data
         dispatch unlock-api!
+        callback!
       else
         console.error json
         dispatch notify json.message
@@ -51,17 +52,35 @@ exports.init-posts = init-posts = -> (dispatch, get-state)->
   {current-session} = get-state!
   dispatch lock-api!
   dispatch do
+    notify-with-uid do
+      type: \init
+      uid: \init
+  dispatch do
     load-posts do
       is-init: true
       key: current-session.key
+      ->
+        dispatch do
+          notify-with-uid do
+            type: \inited
+            uid: \init
 
 exports.get-posts = get-posts = -> (dispatch, get-state)->
   {current-session} = get-state!
   dispatch lock-api!
   dispatch do
+    notify-with-uid do
+      type: \load
+      uid: \load
+  dispatch do
     load-posts do
       is-inf: true
       key: current-session.key
+      ->
+        dispatch do
+          notify-with-uid do
+            type: \loaded
+            uid: \load
 
 exports.update-current-session = update-current-session = (rows, current-index)->
   type: UPDATE_CURRENT_SESSION

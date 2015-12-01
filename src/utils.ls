@@ -12,6 +12,8 @@ exports.dashboard-handler = (post)->
       reblog_key: post.reblog_key
       blog_name: post.blog_name
       liked: post.liked
+      source_url: post.source_url
+      source_title: post.source_title
       switch post.type
       | \text =>
         title: post.title

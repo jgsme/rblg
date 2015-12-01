@@ -14,6 +14,7 @@ class Menu extends Component
         background-color: 'rgba(0, 0, 0, 0.3)'
         color: \#fff
         padding: '5px 10px'
+        z-index: 1000
       switch @props.route
       | \config =>
         DOM.i do

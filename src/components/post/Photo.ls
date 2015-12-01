@@ -7,13 +7,12 @@ class Photo extends Component
     DOM.div do
       style:
         width: \100%
-        height: \100%
       @props.photos.map (photo)~>
         DOM.div do
           key: photo.original_size.url
           style:
             width: \100%
-            height: \100%
+            height: "#{window.innerHeight}px"
             background-size: \contain
             background-image: "url(#{photo.original_size.url})"
             background-position: \center

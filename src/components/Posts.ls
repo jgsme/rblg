@@ -5,6 +5,7 @@ require! {
   \./post/Photo.ls
   \./post/Quote.ls
   \./post/Link.ls
+  \./post/Source.ls
 }
 
 class Posts extends Component
@@ -12,7 +13,6 @@ class Posts extends Component
     DOM.div do
       style:
         width: \100%
-        height: \100%
       @props
         .session
         .posts
@@ -27,7 +27,6 @@ class Posts extends Component
             key: post.id
             style:
               width: \100%
-              height: \100%
               display: if i is @props.session.current-index then \block else \none
             create-element do
               component
@@ -35,5 +34,8 @@ class Posts extends Component
                 post
                 current-index: @props.session.current-index
                 index-of-posts: i
+            create-element do
+              Source
+              post
 
 module.exports = Posts
