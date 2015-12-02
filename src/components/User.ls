@@ -9,16 +9,16 @@ class User extends Component
     DOM.div do
       className: \user-container
       create-element do
-        AuthButton
-        user: @props.user
-        auth: @props.auth
-        unauth: @props.unauth
-      create-element do
         ConfigPane
         key: \user-config
         user: @props.user
         config-tumblr: @props.config-tumblr
         update-config-tumblr: @props.update-config-tumblr
         save-config-tumblr: @props.save-config-tumblr
+      create-element do
+        AuthButton
+        user: @props.user
+        auth: @props.auth
+        unauth: @props.unauth
 
 module.exports = User

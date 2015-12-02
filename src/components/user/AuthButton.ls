@@ -7,11 +7,25 @@ class UserAuthButton extends Component
     switch @props.user
     | null =>
       DOM.button do
+        className: 'pure-button pure-button-primary'
+        style:
+          width: \100%
+          font-size: \36px
         on-click: @props.auth
-        \auth
+        DOM.i do
+          className: 'fa fa-key'
+        \Auth
     | otherwise =>
       DOM.button do
+        className: 'pure-button'
+        style:
+          width: \100%
+          font-size: \18px
+          color: \#fff
+          background-color: \#CA3C3C
         on-click: @props.unauth
-        \unauth
+        DOM.i do
+          className: 'fa fa-key'
+        \Unauth
 
 module.exports = UserAuthButton

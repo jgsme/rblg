@@ -17,4 +17,7 @@
   NEXT_POST
   PREV_POST
 ]>.forEach (type)->
-  exports[type] = if Symbol instanceof Function then Symbol type else type
+  try
+    exports[type] = Symbol type
+  catch err
+    exports[type] = type

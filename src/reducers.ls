@@ -112,9 +112,7 @@ module.exports =
           state
           key: action.key
           db:
-            new pouchdb do
-              "session-#{action.key}"
-              adapter: \websql
+            new pouchdb "session-#{action.key}"
       | action.type is action-types.API_LOCK =>
         assign do
           {}

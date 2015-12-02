@@ -29,12 +29,14 @@ class Menu extends Component
             style:
               margin: '0px 10px'
             className: 'fa fa-retweet'
+            on-click: @props.reblog
           DOM.i do
             key: \menu-like
             style:
               margin: '0px 10px'
               color: if @props.liked then \#BC523C else \#fff
             className: 'fa fa-heart'
+            on-click: @props.like
           DOM.i do
             key: \menu-back
             style:

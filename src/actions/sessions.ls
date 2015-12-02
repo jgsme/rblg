@@ -35,9 +35,7 @@ exports.delete-session = (key, dispatch, get-state)-->
     .child key
     .remove (err)->
       if err? then return dispatch notify err
-      new pouchdb do
-        "session-#{key}"
-        adapter: \websql
+      new pouchdb "session-#{key}"
       .destroy!
       .then -> dispatch notify \session-deleted
       .catch (err)-> dispatch notify err

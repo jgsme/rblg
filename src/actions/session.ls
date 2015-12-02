@@ -5,6 +5,8 @@ require! {
   \../utils.ls : {dashboard-handler, dupulicate-resolver}
 }
 
+if fetch is undefined then fetch = require \isomorphic-fetch
+
 exports.add-posts = add-posts = (posts)->
   type: ADD_POSTS
   posts: posts
@@ -27,7 +29,8 @@ exports.save-posts = save-posts = (posts, dispatch, get-state)-->
 exports.load-posts = load-posts = (opt, callback, dispatch, get-state)-->
   {user, current-session} = get-state!
   fetch "/api/dashboard?uid=#{user.uid}&token=#{user.token}&opt=#{JSON.stringify opt}"
-    .then (res)-> res.json!
+    .then (res)->
+      res.json!
     .then (json)->
       if json.status is \ok
         dispatch apply-posts json.data

@@ -5,6 +5,15 @@ require! {
 }
 
 class Session extends Component
+  component-did-mount: ->
+    @refs.container.add-event-listener \click, (event)~>
+      {x} = event
+      w = window.inner-width
+      d = w *  0.3
+      switch
+      | x > w - d => @props.next-post!
+      | x < d => @props.prev-post!
+
   render: ->
     DOM.div do
       style:
