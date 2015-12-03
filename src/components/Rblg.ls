@@ -37,6 +37,10 @@ class Rblg extends Component
       create-element do
         Notification
         ref: \notification
+        style:
+          Containers:
+            DefaultStyle:
+              max-width: \40%
       create-element do
         Menu
         route: @props.route

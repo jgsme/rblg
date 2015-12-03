@@ -29,8 +29,7 @@ exports.save-posts = save-posts = (posts, dispatch, get-state)-->
 exports.load-posts = load-posts = (opt, callback, dispatch, get-state)-->
   {user, current-session} = get-state!
   fetch "/api/dashboard?uid=#{user.uid}&token=#{user.token}&opt=#{JSON.stringify opt}"
-    .then (res)->
-      res.json!
+    .then (res)-> res.json!
     .then (json)->
       if json.status is \ok
         dispatch apply-posts json.data
@@ -90,13 +89,14 @@ exports.update-current-session = update-current-session = (rows, current-index)-
   posts: rows
   current-index: current-index
 
-exports.check-current-session = check-current-session = (key, dispatch, get-state)-->
+exports.check-current-session = check-current-session = (key, cache, dispatch, get-state)-->
   {sessions} = get-state!
   current-session =
     sessions
       .filter (session)-> session.id is key
       .0
-  if current-session.length is 0 then dispatch init-posts!
+  if current-session.length is 0 then return dispatch init-posts!
+  if cache.length is 0 then dispatch get-posts!
 
 exports.save-index = save-index = (num, dispatch, get-state)-->
   {current-session} = get-state!
@@ -177,7 +177,7 @@ exports.start-session = start-session = (key, current-index, dispatch, get-state
           .map (.doc)
           .sort (x, y)-> y.id_raw - x.id_raw
       dispatch update-current-session rows, current-index
-      dispatch check-current-session key
+      dispatch check-current-session key, rows
 
 exports.attach-session = (key, dispatch, get-state)-->
   dispatch set-current-session key
