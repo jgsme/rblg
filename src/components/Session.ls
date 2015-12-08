@@ -2,23 +2,14 @@ require! {
   react: {Component, DOM, create-element}
   \lodash.assign : assign
   \./Posts.ls
+  \./Navigator.ls
 }
 
 class Session extends Component
-  component-did-mount: ->
-    @refs.container.add-event-listener \click, (event)~>
-      {x} = event
-      w = window.inner-width
-      d = w *  0.3
-      switch
-      | x > w - d => @props.next-post!
-      | x < d => @props.prev-post!
-
   render: ->
     DOM.div do
       style:
         width: \100%
-      ref: \container
       DOM.div do
         style:
           position: \fixed
@@ -43,5 +34,9 @@ class Session extends Component
       create-element do
         Posts
         session: @props.session
+      create-element do
+        Navigator
+        next-post: @props.next-post
+        prev-post: @props.prev-post
 
 module.exports = Session
