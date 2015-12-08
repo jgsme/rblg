@@ -14,6 +14,7 @@ exports.dashboard-handler = (post)->
       liked: post.liked
       source_url: post.source_url
       source_title: post.source_title
+      post_url: post.post_url
       switch post.type
       | \text =>
         title: post.title

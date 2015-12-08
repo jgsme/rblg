@@ -136,6 +136,11 @@ exports.prev-post = -> (dispatch, get-state)->
   {current-session} = get-state!
   dispatch save-index current-session.current-index
 
+exports.open-post = -> (dispatch, get-state)->
+  {current-session} = get-state!
+  post = current-session.posts[current-session.current-index]
+  window.open post.post_url
+
 reaction-to-post = (type, dispatch, get-state)-->
   {user, current-session} = get-state!
   post = current-session.posts[current-session.current-index]
