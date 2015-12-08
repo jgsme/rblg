@@ -6,6 +6,7 @@ class Source extends Component
   anchor: (el)->
     DOM.a do
       href: @props.source_url
+      target: \_blank
       el
 
   title: ->
