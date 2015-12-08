@@ -11,6 +11,14 @@ class Navigator extends Component
         height: window.inner-height
         top: 0
         left: 0
+      on-touch-start: (event)~>
+        @prev-x = event.changed-touches.0.client-x
+      on-touch-end: (event)~>
+        current-x = event.changed-touches.0.client-x
+        diff = @prev-x - current-x
+        switch
+        | diff > 100 => @props.next-post!
+        | diff < -100 => @props.prev-post!
       DOM.div do
         style:
           position: \absolute
