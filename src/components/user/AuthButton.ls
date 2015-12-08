@@ -23,6 +23,7 @@ class UserAuthButton extends Component
           font-size: \18px
           color: \#fff
           background-color: \#CA3C3C
+          margin-top: \30px
         on-click: @props.unauth
         DOM.i do
           className: 'fa fa-key'

@@ -7,13 +7,16 @@ class UserConfigPane extends Component
 
   render: ->
     DOM.div do
-      className: \user-config-container
       style:
         display: if @props.user is null then \none else \block
-      DOM.ul do
-        className: \user-config-list
-        DOM.li do
-          key: \tumblr-consumer-key
+        width: \80%
+        min-width: \320px
+        background-color: \#fff
+        margin: '0 auto'
+      DOM.div do
+        className: 'pure-form pure-form-aligned'
+        DOM.div do
+          className: 'pure-control-group'
           DOM.label do
             htmlFor: \tumblr-consumer-key
             'Tumblr consumer key:'
@@ -22,8 +25,8 @@ class UserConfigPane extends Component
             id: \tumblr-consumer-key
             value: @props.config-tumblr.consumer_key
             on-change: @on-change \consumer_key
-        DOM.li do
-          key: \tumblr-consumer-secret
+        DOM.div do
+          className: 'pure-control-group'
           DOM.label do
             htmlFor: \tumblr-consumer-secret
             'Tumblr consumer secret:'
@@ -32,8 +35,8 @@ class UserConfigPane extends Component
             id: \tumblr-consumer-secret
             value: @props.config-tumblr.consumer_secret
             on-change: @on-change \consumer_secret
-        DOM.li do
-          key: \tumblr-token
+        DOM.div do
+          className: 'pure-control-group'
           DOM.label do
             htmlFor: \tumblr-token
             'Tumblr token:'
@@ -42,8 +45,8 @@ class UserConfigPane extends Component
             id: \tumblr-token
             value: @props.config-tumblr.token
             on-change: @on-change \token
-        DOM.li do
-          key: \tumblr-token-secret
+        DOM.div do
+          className: 'pure-control-group'
           DOM.label do
             htmlFor: \tumblr-token-secret
             'Tumblr token secret:'
@@ -52,8 +55,8 @@ class UserConfigPane extends Component
             id: \tumblr-token-secret
             value: @props.config-tumblr.token_secret
             on-change: @on-change \token_secret
-        DOM.li do
-          key: \tumblr-base-hostname
+        DOM.div do
+          className: 'pure-control-group'
           DOM.label do
             htmlFor: \tumblr-base-hostname
             'Tumblr base hostname:'
@@ -62,8 +65,12 @@ class UserConfigPane extends Component
             id: \tumblr-base-hostname
             value: @props.config-tumblr.base_hostname
             on-change: @on-change \base_hostname
-      DOM.button do
-        on-click: @props.save-config-tumblr
-        \save
+        DOM.button do
+          className: 'pure-button pure-button-primary'
+          style:
+            width: \100%
+            font-size: \18px
+          on-click: @props.save-config-tumblr
+          \save
 
 module.exports = UserConfigPane
