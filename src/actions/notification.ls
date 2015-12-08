@@ -20,7 +20,7 @@ exports.notify = (type, dispatch, get-state)-->
       message: 'Session deleted'
       level: \success
     | otherwise =>
-      message: type.to-string!
+      message: type |> JSON.stringify
       level: \error
       auto-dismiss: 0
   notification.add-notification message
