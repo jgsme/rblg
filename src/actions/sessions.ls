@@ -24,8 +24,6 @@ exports.new-session = -> (dispatch, get-state)->
     .push do
       created-at: new Date!.get-time!
       length: 0
-      first-id: 0
-      last-id: 0
       (err)-> if err? then dispatch notify err
 
 exports.delete-session = (key, dispatch, get-state)-->

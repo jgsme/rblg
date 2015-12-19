@@ -39,7 +39,6 @@
     "jade": "^1.11.0",
     "livescript": "^1.4.0",
     "lodash.assign": "^3.2.0",
-    "lodash.uniq": "^3.2.2",
     "neo-async": "^1.7.0",
     "npm-run-all": "^1.2.12",
     "pouchdb": "^5.1.0",

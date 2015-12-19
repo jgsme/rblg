@@ -116,7 +116,7 @@ exports.save-index = save-index = (num, dispatch, get-state)-->
 
 exports.check-rest-post = check-rest-post = -> (dispatch, get-state)->
   {current-session} = get-state!
-  if current-session.current-index > current-session.posts.length - 80 and !current-session.api-lock
+  if current-session.posts.length - current-session.current-index < 500 and !current-session.api-lock
     dispatch get-posts!
 
 exports.scroll-top = scroll-top = -> (dispatch, get-state)-> window.scroll-to 0, 0

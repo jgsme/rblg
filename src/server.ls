@@ -8,7 +8,6 @@ require! {
   inert: Inert
   request
   \tumblr.js : tumblr
-  \lodash.uniq : uniq
   \neo-async : async
 }
 
@@ -34,6 +33,7 @@ Fire = ({uid, token})->
 
 tumblr-handler = (type, user, opt, callback)->
   client = tumblr.create-client user.config_tumblr
+  console.log type, opt
   cb = (err, res)->
     if err?
       callback err
@@ -90,6 +90,7 @@ api-handler = (req, rep)->
                           first-id: posts.0.id
                           last-id: posts[*-1].id
                           length: posts.length
+                          weight: 20
       if err?
         return
           rep do
@@ -101,31 +102,29 @@ api-handler = (req, rep)->
     | opt.is-inf =>
       {key} = opt
       session = user.sessions[key]
-      {last-id, first-id, length} = session
+      {last-id, first-id, length, weight} = session
       calc = (w)-> last-id - Math.round(((first-id - last-id) / length) * w)
-      fn = (memo, opt, weight)->
+      fn = (memo, opt)->
         err, res <- tumblr-handler \dashboard, user, opt
         filtered-posts = res.posts.filter (post)-> post.id < last-id
         switch
         | filtered-posts.length is 20 =>
           opt.since_id = filtered-posts.0.id
           next-memo = memo.concat filtered-posts
-          next-memo = uniq memo, \id
-          fn next-memo, opt, weight
+          fn next-memo, opt
         | filtered-posts.length is 0 and memo.length is 0 =>
           weight += 1
           opt.since_id = calc weight
-          fn memo, opt, weight
+          fn memo, opt
         | otherwise =>
           posts =
             if memo.length > 0
-              uniq do
-                memo.concat filtered-posts
-                \id
+              memo.concat filtered-posts
             else
               filtered-posts
           session.last-id = posts[*-1].id
           session.length += posts.length
+          session.weight = weight
           err, res, json <- fire.set-metadata key, session
           if err?
             rep do
@@ -137,8 +136,7 @@ api-handler = (req, rep)->
               data: posts
       fn do
         []
-        since_id: calc 20
-        20
+        since_id: calc weight
     | otherwise =>
       err, res <- tumblr-handler req.params.type, user, opt
       if err?
