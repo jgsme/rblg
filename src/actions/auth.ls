@@ -17,7 +17,7 @@ exports.check-auth = -> (dispatch, get-state)->
 
 exports.auth = -> (dispatch, get-state)->
   {firebase} = get-state!
-  err <- firebase.authWithOAuthPopup \github
+  err <- firebase.authWithOAuthRedirect \github
   if err? then return dispatch fire-notification err
   user = firebase.get-auth!
   dispatch set-user user

@@ -6,6 +6,7 @@ require! {
 }
 
 if fetch is undefined then fetch = require \isomorphic-fetch
+if Promise is undefined then Promise = require \es6-promise
 
 exports.add-posts = add-posts = (posts)->
   type: ADD_POSTS
