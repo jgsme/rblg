@@ -3,9 +3,21 @@
   "version": "0.0.0",
   "description": "rblg",
   "main": "index.js",
+  "config": {
+    "DEST": "build",
+    "PORT": "3000",
+    "FIREBASE": "https://<YOUR_ID>.firebaseio.com"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "lsc src/index.ls"
+    "build": "npm-run-all -s build:before build:bundle",
+    "build:before": "mkdir -p $npm_package_config_DEST",
+    "build:bundle": "browserify -t [ @jigsaw/anyify --ls [ livescript?compile ] ] src/index.ls > $npm_package_config_DEST/index.js",
+    "build:dev": "browserify -p browserify-notify -t [ @jigsaw/anyify --ls [ livescript?compile ] ] src/index.ls > $npm_package_config_DEST/index.js",
+    "build:production": "npm-run-all -s build uglify",
+    "clean": "rm -rf $npm_package_config_DEST",
+    "uglify": "uglifyjs --compress --mangle -- $npm_package_config_DEST/index.js > $npm_package_config_DEST/index.min.js && cat $npm_package_config_DEST/index.min.js > $npm_package_config_DEST/index.js && rm -f $npm_package_config_DEST/index.min.js",
+    "start": "lsc src/server.ls",
+    "watch": "chokidar '?(src/components/*.ls|src/actions/*.ls|src/components/**/*.ls|src/actions.ls|src/index.ls|src/reducers.ls)' -c 'npm run build:dev'"
   },
   "repository": {
     "type": "git",
@@ -18,9 +30,35 @@
   },
   "homepage": "https://github.com/jgsme/rblg#readme",
   "dependencies": {
+    "@jigsaw/anyify": "^1.0.1",
+    "browserify": "^12.0.1",
+    "es6-promise": "^3.0.2",
+    "firebase": "^2.3.1",
     "good": "^6.4.0",
-    "good-console": "^5.1.0",
-    "hapi": "^11.0.2",
-    "livescript": "^1.4.0"
+    "good-console": "^5.2.0",
+    "hapi": "^11.1.0",
+    "inert": "^3.2.0",
+    "isomorphic-fetch": "^2.2.0",
+    "jade": "^1.11.0",
+    "livescript": "^1.4.0",
+    "lodash.assign": "^3.2.0",
+    "neo-async": "^1.7.0",
+    "npm-run-all": "^1.2.12",
+    "pouchdb": "^5.1.0",
+    "react": "^0.14.2",
+    "react-dom": "^0.14.2",
+    "react-notification-system": "^0.2.5",
+    "react-redux": "^4.0.0",
+    "redux": "^3.0.4",
+    "redux-thunk": "^1.0.0",
+    "request": "^2.65.0",
+    "sanitize-html": "^1.11.1",
+    "tumblr.js": "0.0.7",
+    "uglify-js": "^2.5.0",
+    "vision": "^4.0.1"
+  },
+  "devDependencies": {
+    "browserify-notify": "^1.1.2",
+    "chokidar-cli": "^1.2.0"
   }
 }

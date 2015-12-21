@@ -1,26 +1,16 @@
 require! {
-  hapi: Hapi
-  good: Good
+  react: {create-element}
+  redux: {create-store, apply-middleware}
+  \react-redux : {Provider}
+  \react-dom : {render}
+  \redux-thunk : thunk-middleware
+  \./components/Rblg.ls
+  \./reducers.ls
 }
 
-server = new Hapi.Server!
-                ..connection do
-                    port: process.env.PORT or 3000
-
-server
-  ..route do
-      method: \GET
-      path: \/
-      handler: (req, rep)-> rep \hello
-  ..register do
-      register: Good
-      options:
-        reporters: [
-          * reporter: require \good-console
-            events: do
-              response: \*
-              log: \*
-        ]
-      (err)->
-        if err? then throw err
-        server.start -> server.log \info, "server running: #{server.info.uri}"
+render do
+  create-element do
+    Provider
+    store: apply-middleware(thunk-middleware)(create-store)(reducers)
+    create-element Rblg
+  document.get-element-by-id \Rblg
