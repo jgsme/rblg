@@ -1,5 +1,5 @@
 require! {
-  fs
+  path
   hapi: Hapi
   good: Good
   \good-console : good-console
@@ -11,13 +11,10 @@ require! {
   \neo-async : async
 }
 
-firebase =
-  fs.readFileSync \.firebase.json
-    .toString!
-    |> JSON.parse
+firebase-url = process.env.npm_package_config_FIREBASE
 
 Fire = ({uid, token})->
-  user-root = "#{firebase.url}/users/#{uid}"
+  user-root = "#{firebase-url}/users/#{uid}"
   _get = (path, callback)->
     request "#{path}.json?auth=#{token}", callback
   _patch = (path, body, callback)->
@@ -163,13 +160,13 @@ main = (err)->
         handler: (req, rep)->
           rep.view do
             \index
-            firebase-url: firebase.url
+            firebase-url: firebase-url
     ..route do
         method: \GET
         path: '/assets/{param*}'
         handler:
           directory:
-            path: \./build
+            path: path.resolve __dirname, \../build
     ..route do
         method: \GET
         path: '/api/{type}'

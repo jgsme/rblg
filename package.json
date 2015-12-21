@@ -5,13 +5,15 @@
   "main": "index.js",
   "config": {
     "DEST": "build",
-    "PORT": "3000"
+    "PORT": "3000",
+    "FIREBASE": "https://<YOUR_ID>.firebaseio.com"
   },
   "scripts": {
     "build": "npm-run-all -s build:before build:bundle",
     "build:before": "mkdir -p $npm_package_config_DEST",
     "build:bundle": "browserify -t [ @jigsaw/anyify --ls [ livescript?compile ] ] src/index.ls > $npm_package_config_DEST/index.js",
     "build:dev": "browserify -p browserify-notify -t [ @jigsaw/anyify --ls [ livescript?compile ] ] src/index.ls > $npm_package_config_DEST/index.js",
+    "build:production": "npm-run-all -s build uglify",
     "clean": "rm -rf $npm_package_config_DEST",
     "uglify": "uglifyjs --compress --mangle -- $npm_package_config_DEST/index.js > $npm_package_config_DEST/index.min.js && cat $npm_package_config_DEST/index.min.js > $npm_package_config_DEST/index.js && rm -f $npm_package_config_DEST/index.min.js",
     "start": "lsc src/server.ls",
