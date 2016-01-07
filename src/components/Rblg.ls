@@ -5,7 +5,7 @@ require! {
   \../actions/index.ls : {initialize, set-route}
   \../actions/notification.ls : {set-notification}
   \../actions/auth.ls : {check-auth, auth, unauth}
-  \../actions/sessions.ls : {update-sessions, new-session, delete-session}
+  \../actions/sessions.ls : {update-sessions, new-session, delete-session, rename-session}
   \../actions/session.ls : {attach-session, next-post, prev-post, reblog, like}
   \../actions/config.ls : {update-config-tumblr, save-config-tumblr}
   \./Menu.ls
@@ -62,6 +62,10 @@ class Rblg extends Component
           attach-session: (session-id)~> ~>
             @props.dispatch attach-session session-id
             @props.dispatch set-route \session
+          rename-session: (session-id)~> (event)~>
+            if event.key-code is 13
+              event.target.blur!
+              @props.dispatch rename-session session-id, event.target.value
           delete-session: (session-id)~> ~> @props.dispatch delete-session session-id
       | \session =>
         create-element do

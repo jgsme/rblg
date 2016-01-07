@@ -23,6 +23,7 @@ exports.new-session = -> (dispatch, get-state)->
     .sessions
     .push do
       created-at: new Date!.get-time!
+      name: 'unnamed session'
       length: 0
       (err)-> if err? then dispatch notify err
 
@@ -37,3 +38,11 @@ exports.delete-session = (key, dispatch, get-state)-->
       .destroy!
       .then -> dispatch notify \session-deleted
       .catch (err)-> dispatch notify err
+
+exports.rename-session = (key, new-name, dispatch, get-state)-->
+  {refs} = get-state!
+  refs
+    .sessions
+    .child key
+    .update do
+      name: new-name
