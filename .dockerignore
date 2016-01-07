@@ -3,4 +3,5 @@ build
 node_modules
 .dockerignore
 .gitignore
+.browserify-cache.json
 Dockerfile
