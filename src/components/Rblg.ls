@@ -34,6 +34,7 @@ class Rblg extends Component
         position: \absolute
         top: 0
         left: 0
+        margin-bottom: \30%
       create-element do
         Notification
         ref: \notification
@@ -50,6 +51,8 @@ class Rblg extends Component
         move-session: ~> @props.dispatch set-route \session
         reblog: ~> @props.dispatch reblog!
         like: ~> @props.dispatch like!
+        next-post: ~> @props.dispatch next-post!
+        prev-post: ~> @props.dispatch prev-post!
       switch @props.route
       | \sessions =>
         create-element do
@@ -64,8 +67,6 @@ class Rblg extends Component
         create-element do
           Session
           session: @props.current-session
-          next-post: ~> @props.dispatch next-post!
-          prev-post: ~> @props.dispatch prev-post!
       | \config =>
         create-element do
           User

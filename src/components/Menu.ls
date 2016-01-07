@@ -1,54 +1,90 @@
 require! {
   react: {Component, DOM, create-element}
+  \lodash.assign : assign
 }
 
 class Menu extends Component
+  styles:
+    anchor:
+      color: \#fff
+    button:
+      padding: '12px 12px'
+      background-color: 'rgba(0, 0, 0, 0.3)'
+    container:
+      position: \fixed
+      will-change: \transform
+      bottom: \5%
+      right: 0
+      left: 0
+      text-align: \center
+      font-size: \36px
+      z-index: 1000
+
   render: ->
     DOM.div do
-      style:
-        position: \fixed
-        will-change: \transform
-        bottom: \5%
-        right: \5%
-        font-size: \36px
-        background-color: 'rgba(0, 0, 0, 0.3)'
-        color: \#fff
-        padding: '5px 10px'
-        z-index: 1000
+      style: @styles.container
       switch @props.route
       | \config =>
-        DOM.i do
-          style:
-            margin: '0px 10px'
-          className: 'fa fa-close'
+        DOM.a do
+          style: @styles.anchor
+          href: \#
           on-click: @props.move-sessions
+          DOM.i do
+            style: @styles.button
+            className: 'fa fa-close'
       | \session =>
         [
-          DOM.i do
+          DOM.a do
+            key: \menu-prev
+            style: @styles.anchor
+            href: \#
+            on-click: @props.prev-post
+            DOM.i do
+              style: @styles.button
+              className: 'fa fa-arrow-left'
+          DOM.a do
             key: \menu-reblog
-            style:
-              margin: '0px 10px'
-            className: 'fa fa-retweet'
+            style: @styles.anchor
+            href: \#
             on-click: @props.reblog
-          DOM.i do
+            DOM.i do
+              style: @styles.button
+              className: 'fa fa-retweet'
+          DOM.a do
             key: \menu-like
-            style:
-              margin: '0px 10px'
-              color: if @props.liked then \#BC523C else \#fff
-            className: 'fa fa-heart'
+            style: @styles.anchor
+            href: \#
             on-click: @props.like
-          DOM.i do
+            DOM.i do
+              style:
+                assign do
+                  @styles.button
+                  color: if @props.liked then \#BC523C else \#fff
+              className: 'fa fa-heart'
+          DOM.a do
             key: \menu-back
-            style:
-              margin: '0px 10px'
-            className: 'fa fa-clone'
+            style: @styles.anchor
+            href: \#
             on-click: @props.move-sessions
+            DOM.i do
+              style: @styles.button
+              className: 'fa fa-clone'
+          DOM.a do
+            key: \menu-next
+            style: @styles.anchor
+            href: \#
+            on-click: @props.next-post
+            DOM.i do
+              style: @styles.button
+              className: 'fa fa-arrow-right'
         ]
       | \sessions =>
-        DOM.i do
-          style:
-            margin: '0px 10px'
-          className: 'fa fa-cog'
+        DOM.a do
+          style: @styles.anchor
+          href: \#
           on-click: @props.move-config
+          DOM.i do
+            style: @styles.button
+            className: 'fa fa-cog'
 
 module.exports = Menu

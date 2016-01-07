@@ -2,7 +2,6 @@ require! {
   react: {Component, DOM, create-element}
   \lodash.assign : assign
   \./Posts.ls
-  \./Navigator.ls
 }
 
 class Session extends Component
@@ -34,9 +33,5 @@ class Session extends Component
       create-element do
         Posts
         session: @props.session
-      create-element do
-        Navigator
-        next-post: @props.next-post
-        prev-post: @props.prev-post
 
 module.exports = Session
