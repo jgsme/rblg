@@ -12,7 +12,7 @@
     "build": "npm-run-all -s build:before build:bundle",
     "build:before": "mkdir -p $npm_package_config_DEST",
     "build:bundle": "browserify -t [ @jigsaw/anyify --ls [ livescript?compile ] ] src/index.ls > $npm_package_config_DEST/index.js",
-    "build:dev": "browserify -p browserify-notify -t [ @jigsaw/anyify --ls [ livescript?compile ] ] src/index.ls > $npm_package_config_DEST/index.js",
+    "build:dev": "browserifyinc -p browserify-notify -t [ @jigsaw/anyify --ls [ livescript?compile ] ] src/index.ls -o $npm_package_config_DEST/index.js -v",
     "build:production": "npm-run-all -s build uglify",
     "clean": "rm -rf $npm_package_config_DEST",
     "uglify": "uglifyjs --compress --mangle -- $npm_package_config_DEST/index.js > $npm_package_config_DEST/index.min.js && cat $npm_package_config_DEST/index.min.js > $npm_package_config_DEST/index.js && rm -f $npm_package_config_DEST/index.min.js",
@@ -36,17 +36,17 @@
     "firebase": "^2.3.1",
     "good": "^6.4.0",
     "good-console": "^5.2.0",
-    "hapi": "^11.1.0",
+    "hapi": "^12.0.1",
     "inert": "^3.2.0",
     "isomorphic-fetch": "^2.2.0",
     "jade": "^1.11.0",
     "livescript": "^1.4.0",
     "lodash.assign": "^3.2.0",
-    "neo-async": "^1.7.0",
+    "neo-async": "^1.7.2",
     "npm-run-all": "^1.2.12",
     "pouchdb": "^5.1.0",
-    "react": "^0.14.2",
-    "react-dom": "^0.14.2",
+    "react": "^0.14.6",
+    "react-dom": "^0.14.6",
     "react-notification-system": "^0.2.5",
     "react-redux": "^4.0.0",
     "redux": "^3.0.4",
@@ -58,6 +58,7 @@
     "vision": "^4.0.1"
   },
   "devDependencies": {
+    "browserify-incremental": "^3.0.1",
     "browserify-notify": "^1.1.2",
     "chokidar-cli": "^1.2.0"
   }
