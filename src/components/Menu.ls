@@ -58,6 +58,7 @@ class Menu extends Component
             DOM.i do
               style:
                 assign do
+                  {}
                   @styles.button
                   color: if @props.liked then \#BC523C else \#fff
               className: 'fa fa-heart'
