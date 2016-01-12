@@ -1,5 +1,5 @@
 require! {
-  \./types.ls : {ADD_POSTS, UPDATE_CURRENT_SESSION, API_LOCK, API_UNLOCK, PREV_POST, NEXT_POST}
+  \./types.ls : {ADD_POSTS, UPDATE_CURRENT_SESSION, API_LOCK, API_UNLOCK, PREV_POST, NEXT_POST, TOGGLE_SESSION_CONFIG}
   \./notification.ls : {notify, notify-with-uid}
   \./sessions.ls : {set-current-session}
   \../utils.ls : {dashboard-handler, dupulicate-resolver}
@@ -17,6 +17,9 @@ exports.lock-api = lock-api = ->
 
 exports.unlock-api = unlock-api = ->
   type: API_UNLOCK
+
+exports.toggle-config = toggle-config = ->
+  type: TOGGLE_SESSION_CONFIG
 
 exports.save-posts = save-posts = (posts, dispatch, get-state)-->
   {current-session} = get-state!
@@ -120,12 +123,9 @@ exports.check-rest-post = check-rest-post = -> (dispatch, get-state)->
   if current-session.posts.length - current-session.current-index < 500 and !current-session.api-lock
     dispatch get-posts!
 
-exports.scroll-top = scroll-top = -> (dispatch, get-state)-> window.scroll-to 0, 0
-
 exports.next-post = -> (dispatch, get-state)->
   dispatch do
     type: NEXT_POST
-  dispatch scroll-top!
   {current-session} = get-state!
   dispatch save-index current-session.current-index
   dispatch check-rest-post!
@@ -133,7 +133,6 @@ exports.next-post = -> (dispatch, get-state)->
 exports.prev-post = -> (dispatch, get-state)->
   dispatch do
     type: PREV_POST
-  dispatch scroll-top!
   {current-session} = get-state!
   dispatch save-index current-session.current-index
 

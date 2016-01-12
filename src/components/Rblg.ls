@@ -6,7 +6,7 @@ require! {
   \../actions/notification.ls : {set-notification}
   \../actions/auth.ls : {check-auth, auth, unauth}
   \../actions/sessions.ls : {update-sessions, new-session, delete-session, rename-session}
-  \../actions/session.ls : {attach-session, next-post, prev-post, reblog, like}
+  \../actions/session.ls : {attach-session, next-post, prev-post, reblog, like, toggle-config, open-post}
   \../actions/config.ls : {update-config-tumblr, save-config-tumblr}
   \./Menu.ls
   \./User.ls
@@ -49,6 +49,7 @@ class Rblg extends Component
         move-config: ~> @props.dispatch set-route \config
         move-sessions: ~> @props.dispatch set-route \sessions
         move-session: ~> @props.dispatch set-route \session
+        toggle-config: ~> @props.dispatch toggle-config!
         reblog: ~> @props.dispatch reblog!
         like: ~> @props.dispatch like!
         next-post: ~> @props.dispatch next-post!
@@ -71,6 +72,7 @@ class Rblg extends Component
         create-element do
           Session
           session: @props.current-session
+          open-post: ~> @props.dispatch open-post!
       | \config =>
         create-element do
           User

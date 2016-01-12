@@ -63,13 +63,13 @@ class Menu extends Component
                   color: if @props.liked then \#BC523C else \#fff
               className: 'fa fa-heart'
           DOM.a do
-            key: \menu-back
+            key: \menu-toggle-config
             style: @styles.anchor
             href: \#
-            on-click: @props.move-sessions
+            on-click: @props.toggle-config
             DOM.i do
               style: @styles.button
-              className: 'fa fa-clone'
+              className: 'fa fa-cog'
           DOM.a do
             key: \menu-next
             style: @styles.anchor
@@ -86,6 +86,6 @@ class Menu extends Component
           on-click: @props.move-config
           DOM.i do
             style: @styles.button
-            className: 'fa fa-cog'
+            className: 'fa fa-cogs'
 
 module.exports = Menu

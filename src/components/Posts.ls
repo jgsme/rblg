@@ -10,12 +10,16 @@ require! {
 
 class Posts extends Component
   render: ->
+    begin = @props.session.current-index - 200
+    end = @props.session.current-index + 200
+    if begin < 0 then begin = 0
     DOM.div do
       style:
         width: \100%
       @props
         .session
         .posts
+        .slice begin, end
         .map (post, i)~>
           component =
             switch post.type

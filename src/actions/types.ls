@@ -16,6 +16,7 @@
   SET_ROUTE
   NEXT_POST
   PREV_POST
+  TOGGLE_SESSION_CONFIG
 ]>.forEach (type)->
   try
     exports[type] = Symbol type
