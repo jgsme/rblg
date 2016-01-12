@@ -27,7 +27,9 @@ module.exports = (state = init, action)->
       state
       key: action.key
       db:
-        new pouchdb "session-#{action.key}"
+        new pouchdb do
+          "session-#{action.key}"
+          adapter: \idb
   | action.type is API_LOCK =>
     assign do
       {}
