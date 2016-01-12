@@ -19,8 +19,11 @@ class Posts extends Component
       @props
         .session
         .posts
+        .map (post, i)->
+          post.index = i
+          post
         .slice begin, end
-        .map (post, i)~>
+        .map (post)~>
           component =
             switch post.type
             | \text => Text
@@ -31,13 +34,12 @@ class Posts extends Component
             key: post.id
             style:
               width: \100%
-              display: if i is @props.session.current-index then \block else \none
+              display: if post.index is @props.session.current-index then \block else \none
             create-element do
               component
               assign do
                 post
                 current-index: @props.session.current-index
-                index-of-posts: i
             create-element do
               Source
               post

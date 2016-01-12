@@ -17,7 +17,7 @@ class Photo extends Component
             background-image: "url(#{photo.original_size.url})"
             background-position: \center
             background-repeat: \no-repeat
-          if @props.index-of-posts >= @props.current-index # for cache
+          if @props.index >= @props.current-index # for cache
             DOM.img do
               src: photo.original_size.url
               style:
