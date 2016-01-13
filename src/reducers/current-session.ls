@@ -1,7 +1,7 @@
 require! {
   \lodash.assign : assign
   pouchdb
-  \../actions/types.ls : {UPDATE_CURRENT_SESSION, SET_CURRENT_SESSION, API_LOCK, API_UNLOCK, ADD_POSTS, NEXT_POST, PREV_POST, TOGGLE_SESSION_CONFIG}
+  \../actions/types.ls : {UPDATE_CURRENT_SESSION_POSTS, UPDATE_CURRENT_SESSION_INDEX, SET_CURRENT_SESSION, API_LOCK, API_UNLOCK, ADD_POSTS, NEXT_POST, PREV_POST, TOGGLE_SESSION_CONFIG}
 }
 
 init =
@@ -14,14 +14,20 @@ init =
   db: null
 
 module.exports = (state = init, action)->
-  | action.type is UPDATE_CURRENT_SESSION =>
+  | action.type is UPDATE_CURRENT_SESSION_POSTS =>
+    assign do
+      {}
+      state
+      posts: action.posts
+      liked: action.posts[state.current-index]?.liked
+      is-photoset: action.posts[state.current-index]?.photos?.length > 1
+  | action.type is UPDATE_CURRENT_SESSION_INDEX =>
     assign do
       {}
       state
       current-index: action.current-index
-      posts: action.posts
-      liked: action.posts[action.current-index]?.liked
-      is-photoset: action.posts[action.current-index]?.photos?.length > 1
+      liked: state.posts[action.current-index]?.liked
+      is-photoset: state.posts[action.current-index]?.photos?.length > 1
   | action.type is SET_CURRENT_SESSION =>
     assign do
       {}

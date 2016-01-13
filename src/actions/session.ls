@@ -1,5 +1,5 @@
 require! {
-  \./types.ls : {ADD_POSTS, UPDATE_CURRENT_SESSION, API_LOCK, API_UNLOCK, PREV_POST, NEXT_POST, TOGGLE_SESSION_CONFIG}
+  \./types.ls : {ADD_POSTS, UPDATE_CURRENT_SESSION_POSTS, UPDATE_CURRENT_SESSION_INDEX, API_LOCK, API_UNLOCK, PREV_POST, NEXT_POST, TOGGLE_SESSION_CONFIG}
   \./notification.ls : {notify, notify-with-uid}
   \./sessions.ls : {set-current-session}
   \../utils.ls : {dashboard-handler, dupulicate-resolver}
@@ -7,6 +7,19 @@ require! {
 
 if fetch is undefined then fetch = require \isomorphic-fetch
 if Promise is undefined then Promise = require \es6-promise
+
+load-cache = (current-session, callback)->
+  current-session
+    .db
+    .query do
+      (doc, emit)-> if doc._id.0 isnt \$ then emit doc
+      include_docs: true
+    .then (res)->
+      res
+        .rows
+        .map (.doc)
+        .sort (x, y)-> y.id_raw - x.id_raw
+        |> callback
 
 exports.add-posts = add-posts = (posts)->
   type: ADD_POSTS
@@ -21,11 +34,31 @@ exports.unlock-api = unlock-api = ->
 exports.toggle-config = toggle-config = ->
   type: TOGGLE_SESSION_CONFIG
 
+exports.update-current-session-posts = update-current-session-posts = (rows)->
+  type: UPDATE_CURRENT_SESSION_POSTS
+  posts: rows
+
+exports.update-current-session-index = update-current-session-index = (current-index)->
+  type: UPDATE_CURRENT_SESSION_INDEX
+  current-index: current-index
+
+exports.sync-posts = sync-posts = -> (dispatch, get-state)->
+  {current-session} = get-state!
+  rows <- load-cache current-session
+  dispatch update-current-session-posts rows
+
 exports.save-posts = save-posts = (posts, dispatch, get-state)-->
   {current-session} = get-state!
   current-session
     .db
     .bulk-docs posts
+    .then (res)->
+      flg = res.reduce do
+        (prev, r)->
+          if r.error then prev = true
+          prev
+        false
+      if flg then dispatch sync-posts!
     .catch (err)->
       console.error err
       dispatch notify err
@@ -87,11 +120,6 @@ exports.get-posts = get-posts = -> (dispatch, get-state)->
           notify-with-uid do
             type: \loaded
             uid: \load
-
-exports.update-current-session = update-current-session = (rows, current-index)->
-  type: UPDATE_CURRENT_SESSION
-  posts: rows
-  current-index: current-index
 
 exports.check-current-session = check-current-session = (key, cache, dispatch, get-state)-->
   {sessions} = get-state!
@@ -170,19 +198,10 @@ exports.like = -> (dispatch, get-state)->
 
 exports.start-session = start-session = (key, current-index, dispatch, get-state)-->
   {current-session} = get-state!
-  current-session
-    .db
-    .query do
-      (doc, emit)-> if doc._id.0 isnt \$ then emit doc
-      include_docs: true
-    .then (res)->
-      rows =
-        res
-          .rows
-          .map (.doc)
-          .sort (x, y)-> y.id_raw - x.id_raw
-      dispatch update-current-session rows, current-index
-      dispatch check-current-session key, rows
+  rows <- load-cache current-session
+  dispatch update-current-session-posts rows
+  dispatch update-current-session-index current-index
+  dispatch check-current-session key, rows
 
 exports.attach-session = (key, dispatch, get-state)-->
   dispatch set-current-session key
