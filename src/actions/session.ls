@@ -42,6 +42,8 @@ exports.update-current-session-index = update-current-session-index = (current-i
   type: UPDATE_CURRENT_SESSION_INDEX
   current-index: current-index
 
+exports.scroll-top = scroll-top = -> (dispatch, get-state)-> window.scroll-to 0, 0
+
 exports.sync-posts = sync-posts = -> (dispatch, get-state)->
   {current-session} = get-state!
   rows <- load-cache current-session
@@ -154,6 +156,7 @@ exports.check-rest-post = check-rest-post = -> (dispatch, get-state)->
 exports.next-post = -> (dispatch, get-state)->
   dispatch do
     type: NEXT_POST
+  dispatch scroll-top!
   {current-session} = get-state!
   dispatch save-index current-session.current-index
   dispatch check-rest-post!
@@ -161,6 +164,7 @@ exports.next-post = -> (dispatch, get-state)->
 exports.prev-post = -> (dispatch, get-state)->
   dispatch do
     type: PREV_POST
+  dispatch scroll-top!
   {current-session} = get-state!
   dispatch save-index current-session.current-index
 

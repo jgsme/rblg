@@ -47,8 +47,6 @@ class Rblg extends Component
         route: @props.route
         liked: @props.current-session.liked
         move-config: ~> @props.dispatch set-route \config
-        move-sessions: ~> @props.dispatch set-route \sessions
-        move-session: ~> @props.dispatch set-route \session
         toggle-config: ~> @props.dispatch toggle-config!
         reblog: ~> @props.dispatch reblog!
         like: ~> @props.dispatch like!
@@ -72,7 +70,12 @@ class Rblg extends Component
         create-element do
           Session
           session: @props.current-session
-          open-post: ~> @props.dispatch open-post!
+          open-post: ~>
+            @props.dispatch toggle-config!
+            @props.dispatch open-post!
+          move-sessions: ~>
+            @props.dispatch toggle-config!
+            @props.dispatch set-route \sessions
       | \config =>
         create-element do
           User

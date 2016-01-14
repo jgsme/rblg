@@ -43,6 +43,15 @@ class Session extends Component
           font-size: \18px
           display: if @props.session.is-show-config then \block else \none
         DOM.p do
+          on-click: @props.move-sessions
+          style:
+            cursor: \pointer
+          DOM.i do
+            className: 'fa fa-clone'
+            style:
+              margin-right: \10px
+          'Back to sessions page'
+        DOM.p do
           on-click: @props.open-post
           style:
             cursor: \pointer
