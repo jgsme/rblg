@@ -1,6 +1,5 @@
 require! {
   redux: {combine-reducers}
-  \./actions/types.ls : action-types
   \./reducers/route.ls
   \./reducers/firebase.ls
   \./reducers/notification.ls
