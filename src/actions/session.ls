@@ -202,7 +202,11 @@ exports.like = -> (dispatch, get-state)->
 
 exports.start-session = start-session = (key, current-index, dispatch, get-state)-->
   {current-session} = get-state!
-  rows <- load-cache current-session
+  try
+    rows <- load-cache current-session
+  catch err
+    console.error err
+    dispatch notify err
   dispatch update-current-session-posts rows
   dispatch update-current-session-index current-index
   dispatch check-current-session key, rows
