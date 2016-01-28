@@ -43,7 +43,7 @@
     "livescript": "^1.4.0",
     "lodash.assign": "^4.0.1",
     "neo-async": "^1.7.2",
-    "npm-run-all": "^1.5.0",
+    "npm-run-all": "^1.5.1",
     "pouchdb": "^5.2.0",
     "react": "^0.14.6",
     "react-dom": "^0.14.6",
