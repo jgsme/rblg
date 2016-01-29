@@ -44,7 +44,7 @@
     "lodash.assign": "^4.0.1",
     "neo-async": "^1.7.2",
     "npm-run-all": "^1.5.1",
-    "pouchdb": "^5.2.0",
+    "pouchdb": "^5.2.1",
     "react": "^0.14.6",
     "react-dom": "^0.14.6",
     "react-notification-system": "^0.2.5",
