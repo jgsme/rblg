@@ -34,7 +34,7 @@
     "browserify": "^13.0.0",
     "es6-promise": "^3.0.2",
     "firebase": "^2.4.0",
-    "good": "^6.4.0",
+    "good": "^6.6.2",
     "good-console": "^5.3.0",
     "hapi": "^12.1.0",
     "inert": "^3.2.0",
