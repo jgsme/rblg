@@ -55,7 +55,7 @@
     "sanitize-html": "^1.11.3",
     "tumblr.js": "0.0.7",
     "uglify-js": "^2.5.0",
-    "vision": "^4.0.1"
+    "vision": "^4.1.0"
   },
   "devDependencies": {
     "browserify-incremental": "^3.0.1",
