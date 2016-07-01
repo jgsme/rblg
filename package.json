@@ -45,7 +45,7 @@
     "neo-async": "^1.7.2",
     "npm-run-all": "^2.2.2",
     "pouchdb": "^5.2.1",
-    "react": "^0.14.7",
+    "react": "^15.2.0",
     "react-dom": "^0.14.7",
     "react-notification-system": "^0.2.5",
     "react-redux": "^4.1.2",
