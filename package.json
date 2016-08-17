@@ -54,7 +54,7 @@
     "request": "^2.72.0",
     "sanitize-html": "^1.11.3",
     "tumblr.js": "0.0.7",
-    "uglify-js": "^2.5.0",
+    "uglify-js": "^2.7.2",
     "vision": "^4.0.1"
   },
   "devDependencies": {
